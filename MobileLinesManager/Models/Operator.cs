@@ -16,6 +16,7 @@ namespace MobileLinesManager.Models
         
         public string IconPath { get; set; }
         
+        
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
     }
 }

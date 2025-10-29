@@ -27,31 +27,31 @@ namespace MobileLinesManager.Data
             {
                 new Operator 
                 { 
-                    Name = "فودافون", 
-                    ColorCode = "#E60000", 
+                    Name = "فودافون",
+                    ColorHex = "#E60000", 
                     IconPath = "vodafone.png",
-                    IsActive = true 
+                    //IsActive = true 
                 },
                 new Operator 
                 { 
-                    Name = "اتصالات", 
-                    ColorCode = "#00B140", 
+                    Name = "اتصالات",
+                    ColorHex = "#00B140", 
                     IconPath = "etisalat.png",
-                    IsActive = true 
+                    //IsActive = true 
                 },
                 new Operator 
                 { 
-                    Name = "أورنج", 
-                    ColorCode = "#FF7900", 
+                    Name = "أورنج",
+                    ColorHex = "#FF7900", 
                     IconPath = "orange.png",
-                    IsActive = true 
+                    //IsActive = true 
                 },
                 new Operator 
                 { 
-                    Name = "وي", 
-                    ColorCode = "#6C2C91", 
+                    Name = "وي",
+                    ColorHex = "#6C2C91", 
                     IconPath = "we.png",
-                    IsActive = true 
+                    //IsActive = true 
                 }
             };
 
