@@ -12,24 +12,25 @@ namespace MobileLinesManager
     /// </summary>
     public partial class App : Application
     {
-        public static IServiceProvider ServiceProvider { get; private set; }
+        private IServiceProvider _serviceProvider;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            _serviceProvider = services.BuildServiceProvider();
 
             // Initialize database
-            using (var scope = ServiceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                DbInitializer.Initialize(db);
             }
 
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
+            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            mainWindow.DataContext = _serviceProvider.GetRequiredService<MainViewModel>();
             mainWindow.Show();
         }
 
@@ -44,6 +45,9 @@ namespace MobileLinesManager
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IQRService, QRService>();
             services.AddSingleton<IBackupService, BackupService>();
+
+            // ViewModels
+            services.AddTransient<MainViewModel>();
 
             // Windows
             services.AddTransient<MainWindow>();
