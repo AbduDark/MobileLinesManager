@@ -1,0 +1,150 @@
+
+<UserControl x:Class="MobileLinesManager.CategoriesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="إدارة الفئات" FontSize="24" FontWeight="Bold" Margin="0,0,0,15"/>
+        
+        <!-- Categories List -->
+        <DataGrid Grid.Row="1" 
+                 ItemsSource="{Binding Categories}" 
+                 SelectedItem="{Binding SelectedCategory}"
+                 AutoGenerateColumns="False" 
+                 IsReadOnly="True"
+                 SelectionMode="Single"
+                 CanUserAddRows="False"
+                 GridLinesVisibility="Horizontal"
+                 HeadersVisibility="Column"
+                 AlternatingRowBackground="#F9F9F9"
+                 RowHeight="35"
+                 Margin="0,0,0,10">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="المشغل" Binding="{Binding Operator.Name}" Width="120"/>
+                <DataGridTextColumn Header="اسم الفئة" Binding="{Binding Name}" Width="200"/>
+                <DataGridCheckBoxColumn Header="محفظة" Binding="{Binding RequiresWallet}" Width="80"/>
+                <DataGridCheckBoxColumn Header="تأكيد" Binding="{Binding RequiresConfirmation}" Width="80"/>
+                <DataGridCheckBoxColumn Header="انتهاء" Binding="{Binding HasExpiry}" Width="80"/>
+                <DataGridTextColumn Header="أيام الانتهاء" Binding="{Binding ExpiryDays}" Width="100"/>
+                <DataGridTextColumn Header="تنبيه قبل" Binding="{Binding DefaultAlertDaysBeforeExpiry}" Width="100"/>
+                <DataGridCheckBoxColumn Header="إضافة أرقام" Binding="{Binding AllowAddNumbers}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        
+        <!-- Add/Edit Form -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <TextBlock Grid.Row="0" 
+                          Text="{Binding IsEditing, Converter={StaticResource BoolToTextConverter}, ConverterParameter='تعديل فئة|إضافة فئة جديدة'}" 
+                          FontSize="18" 
+                          FontWeight="SemiBold" 
+                          Margin="0,0,0,15"/>
+                
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Column="0" Margin="0,0,10,10">
+                        <TextBlock Text="المشغل" Margin="0,0,0,5"/>
+                        <ComboBox ItemsSource="{Binding Operators}" 
+                                 SelectedValue="{Binding SelectedOperatorId}" 
+                                 SelectedValuePath="Id" 
+                                 DisplayMemberPath="Name" 
+                                 Padding="8"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Margin="0,0,10,10">
+                        <TextBlock Text="اسم الفئة" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding CategoryName, UpdateSourceTrigger=PropertyChanged}" 
+                                Padding="8"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="2" Margin="0,0,0,10">
+                        <TextBlock Text="أيام الانتهاء" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding ExpiryDays, UpdateSourceTrigger=PropertyChanged}" 
+                                Padding="8"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,10">
+                        <TextBlock Text="أيام التنبيه" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding DefaultAlertDays, UpdateSourceTrigger=PropertyChanged}" 
+                                Padding="8"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,25,0,10">
+                        <CheckBox Content="يتطلب محفظة" 
+                                 IsChecked="{Binding RequiresWallet}" 
+                                 Margin="0,0,20,0"/>
+                        <CheckBox Content="يتطلب تأكيد" 
+                                 IsChecked="{Binding RequiresConfirmation}" 
+                                 Margin="0,0,20,0"/>
+                        <CheckBox Content="له تاريخ انتهاء" 
+                                 IsChecked="{Binding HasExpiry}" 
+                                 Margin="0,0,20,0"/>
+                        <CheckBox Content="السماح بإضافة أرقام" 
+                                 IsChecked="{Binding AllowAddNumbers}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
+                        <TextBlock Text="ملاحظات" Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding CategoryNotes, UpdateSourceTrigger=PropertyChanged}" 
+                                Height="60" 
+                                TextWrapping="Wrap" 
+                                AcceptsReturn="True" 
+                                VerticalScrollBarVisibility="Auto" 
+                                Padding="8"/>
+                    </StackPanel>
+                </Grid>
+                
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <Button Content="إضافة" 
+                           Command="{Binding AddCategoryCommand}" 
+                           Style="{StaticResource PrimaryButton}" 
+                           Margin="0,0,10,0" 
+                           Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverse}"/>
+                    <Button Content="حفظ التعديلات" 
+                           Command="{Binding SaveCategoryCommand}" 
+                           Style="{StaticResource PrimaryButton}" 
+                           Margin="0,0,10,0" 
+                           Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Content="تعديل" 
+                           Command="{Binding EditCategoryCommand}" 
+                           Style="{StaticResource SecondaryButton}" 
+                           Margin="0,0,10,0"/>
+                    <Button Content="حذف" 
+                           Command="{Binding DeleteCategoryCommand}" 
+                           Style="{StaticResource SecondaryButton}" 
+                           Margin="0,0,10,0"/>
+                    <Button Content="إلغاء" 
+                           Command="{Binding CancelEditCommand}" 
+                           Style="{StaticResource SecondaryButton}" 
+                           Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

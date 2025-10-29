@@ -1,0 +1,108 @@
+
+<UserControl x:Class="MobileLinesManager.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="التقارير" FontSize="24" FontWeight="Bold" Margin="0,0,0,15"/>
+        
+        <!-- Report Options -->
+        <Border Grid.Row="1" Background="#F5F5F5" Padding="15" Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Column="0" Margin="0,0,10,10">
+                    <TextBlock Text="المشغل (اختياري)" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding Operators}" 
+                             SelectedValue="{Binding SelectedOperatorId}" 
+                             SelectedValuePath="Id" 
+                             DisplayMemberPath="Name" 
+                             Padding="8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="1" Margin="0,0,10,10">
+                    <TextBlock Text="الفئة (اختياري)" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding Categories}" 
+                             SelectedValue="{Binding SelectedCategoryId}" 
+                             SelectedValuePath="Id" 
+                             DisplayMemberPath="Name" 
+                             Padding="8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Margin="0,0,0,10">
+                    <TextBlock Text="من تاريخ" Margin="0,0,0,5"/>
+                    <DatePicker SelectedDate="{Binding StartDate}" Padding="8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="إلى تاريخ" Margin="0,0,0,5"/>
+                    <DatePicker SelectedDate="{Binding EndDate}" Padding="8"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        
+        <!-- Report Actions -->
+        <WrapPanel Grid.Row="1" Margin="0,10">
+            <Button Content="تقرير العدد حسب المشغل والفئة" 
+                   Command="{Binding GenerateCountReportCommand}" 
+                   Style="{StaticResource PrimaryButton}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="تقرير الخطوط المنتهية" 
+                   Command="{Binding GenerateExpiryReportCommand}" 
+                   Style="{StaticResource PrimaryButton}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="تقرير التأخير" 
+                   Command="{Binding GenerateDelayReportCommand}" 
+                   Style="{StaticResource PrimaryButton}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="تقرير التسليمات" 
+                   Command="{Binding GenerateAssignmentReportCommand}" 
+                   Style="{StaticResource PrimaryButton}"/>
+        </WrapPanel>
+        
+        <!-- Report Result -->
+        <Border Grid.Row="2" BorderBrush="#CCCCCC" BorderThickness="1" Margin="0,10,0,10">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <TextBox Text="{Binding ReportResult, Mode=TwoWay}" 
+                        IsReadOnly="True" 
+                        TextWrapping="Wrap" 
+                        BorderThickness="0" 
+                        Padding="10" 
+                        FontFamily="Consolas"
+                        Background="White"/>
+            </ScrollViewer>
+        </Border>
+        
+        <!-- Export Actions -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="تصدير PDF" 
+                   Command="{Binding ExportToPdfCommand}" 
+                   Style="{StaticResource SecondaryButton}" 
+                   Margin="0,0,10,0" 
+                   Padding="20,8"/>
+            <Button Content="تصدير Excel" 
+                   Command="{Binding ExportToExcelCommand}" 
+                   Style="{StaticResource SecondaryButton}" 
+                   Padding="20,8"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

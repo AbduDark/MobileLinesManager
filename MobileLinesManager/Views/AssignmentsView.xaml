@@ -1,0 +1,101 @@
+
+<UserControl x:Class="MobileLinesManager.AssignmentsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- Assignment Form -->
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" 
+               Background="#F5F5F5" 
+               Padding="15" 
+               Margin="0,0,10,0">
+            <StackPanel>
+                <TextBlock Text="تسليم خط" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,20"/>
+                
+                <TextBlock Text="اختر الخط" Margin="0,0,0,5"/>
+                <ComboBox ItemsSource="{Binding AvailableLines}" 
+                         SelectedItem="{Binding SelectedLine}" 
+                         DisplayMemberPath="PhoneNumber" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <TextBlock Text="اختر العامل" Margin="0,0,0,5"/>
+                <ComboBox ItemsSource="{Binding Workers}" 
+                         SelectedItem="{Binding SelectedWorker}" 
+                         DisplayMemberPath="FullName" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <TextBlock Text="تاريخ الإرجاع المتوقع" Margin="0,0,0,5"/>
+                <DatePicker SelectedDate="{Binding ExpectedReturnDate}" 
+                           Padding="8" 
+                           Margin="0,0,0,15"/>
+                
+                <TextBlock Text="ملاحظات" Margin="0,0,0,5"/>
+                <TextBox Text="{Binding AssignmentNotes, UpdateSourceTrigger=PropertyChanged}" 
+                        Height="80" 
+                        TextWrapping="Wrap" 
+                        AcceptsReturn="True" 
+                        VerticalScrollBarVisibility="Auto" 
+                        Padding="8" 
+                        Margin="0,0,0,15"/>
+                
+                <Button Content="تسليم الخط" 
+                       Command="{Binding AssignLineCommand}" 
+                       Style="{StaticResource PrimaryButton}" 
+                       Padding="20,10"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Assignments History -->
+        <StackPanel Grid.Row="0" Grid.Column="1">
+            <TextBlock Text="سجل التسليمات" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,10"/>
+        </StackPanel>
+        
+        <DataGrid Grid.Row="1" Grid.Column="1" 
+                 ItemsSource="{Binding Assignments}" 
+                 SelectedItem="{Binding SelectedAssignment}"
+                 AutoGenerateColumns="False" 
+                 IsReadOnly="True"
+                 SelectionMode="Single"
+                 CanUserAddRows="False"
+                 GridLinesVisibility="Horizontal"
+                 HeadersVisibility="Column"
+                 AlternatingRowBackground="#F9F9F9"
+                 RowHeight="35">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="رقم الهاتف" Binding="{Binding Line.PhoneNumber}" Width="120"/>
+                <DataGridTextColumn Header="العامل" Binding="{Binding ToUser.FullName}" Width="150"/>
+                <DataGridTextColumn Header="تاريخ التسليم" Binding="{Binding AssignedAt, StringFormat=dd/MM/yyyy}" Width="120"/>
+                <DataGridTextColumn Header="الإرجاع المتوقع" Binding="{Binding ExpectedReturnDate, StringFormat=dd/MM/yyyy}" Width="120"/>
+                <DataGridTextColumn Header="تاريخ الإرجاع" Binding="{Binding ReturnedAt, StringFormat=dd/MM/yyyy}" Width="120"/>
+                <DataGridTextColumn Header="الحالة" Binding="{Binding Status}" Width="100"/>
+                <DataGridTemplateColumn Header="إجراء" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="استرجاع" 
+                                   Command="{Binding DataContext.ReturnLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                   Style="{StaticResource SecondaryButton}" 
+                                   Padding="10,5"
+                                   Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
