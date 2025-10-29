@@ -1,0 +1,568 @@
+Build a production-ready WPF desktop application (C#, .NET, EF Core, SQLite) in Arabic (Right-to-Left) for managing mobile lines by operator. Implement database, backend layers, MVVM, full RTL WPF UI (Arabic), QR & CSV import, an integrated reporting system, alert/notification logic, backups, and the extras specified below. Follow the exact schema, naming, behaviors and features in this prompt.
+
+Project summary / goal
+
+Create a WPF (Windows Presentation Foundation) desktop application in Arabic (RTL) named Mobile Lines Manager that manages mobile SIM lines grouped by operator (Vodafone, Etisalat, Orange, We). The app must:
+
+Use SQLite database file named mobile_lines.db stored in a secure AppData location (e.g. %APPDATA%/Vendor/App/mobile_lines.db).
+
+Support unlimited categories per operator. Each category can have properties (wallet required, expiry days default 90, alert rules, etc.).
+
+Record assignment deliveries/returns for workers with expected return dates and overdue alerts.
+
+Allow adding individual numbers, bulk CSV import, and QR scan import.
+
+Produce reports (counts per operator/category, expiring/expired lines, worker delay reports).
+
+Apply operator-specific UI color & icons. Whole UI Arabic, FlowDirection RTL.
+
+Use C#, EF Core, XAML (MVVM pattern). Use PRAGMA foreign_keys = ON; when opening DB.
+
+Include AlertService, ImportService, ReportService, QRService, BackupService, AuditTrail.
+
+Explicit technical stack & libraries
+
+.NET (latest LTS available for the environment you build in).
+
+WPF for UI (XAML). Use FlowDirection=RightToLeft globally.
+
+EF Core (SQLite provider) with migrations.
+
+SQLite DB file mobile_lines.db.
+
+QR scanning: ZXing.Net or ZXing.Net.Bindings.WPF (support webcam & image file).
+
+CSV import: CsvHelper.
+
+Excel export: ClosedXML.
+
+PDF generation: QuestPDF (or iText7/PdfSharp if necessary).
+
+Reports viewer (optional): ReportViewer / RDLC for print mode.
+
+Unit tests: xUnit / NUnit + Moq for services.
+
+Use DI container (Microsoft.Extensions.DependencyInjection).
+
+Database — exact schema (SQLite)
+
+Database file name: mobile_lines.db
+
+Important: On DB connection run PRAGMA foreign_keys = ON;.
+
+Provide EF Core migrations that create the following tables exactly (use these SQL definitions as reference):
+
+-- Operators
+CREATE TABLE Operators (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  Name TEXT NOT NULL,
+  ColorHex TEXT NOT NULL,
+  IconPath TEXT
+);
+
+-- Categories (الفئات)
+CREATE TABLE Categories (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  OperatorId INTEGER NOT NULL,
+  Name TEXT NOT NULL,
+  RequiresWallet INTEGER NOT NULL DEFAULT 0,
+  RequiresConfirmation INTEGER NOT NULL DEFAULT 0,
+  HasExpiry INTEGER NOT NULL DEFAULT 0,
+  ExpiryDays INTEGER DEFAULT 90,
+  DefaultAlertDaysBeforeExpiry INTEGER DEFAULT 30,
+  AllowAddNumbers INTEGER NOT NULL DEFAULT 1,
+  Notes TEXT,
+  CreatedAt DATETIME DEFAULT (datetime('now')),
+  UpdatedAt DATETIME
+);
+
+-- Users / Workers
+CREATE TABLE Users (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  FullName TEXT NOT NULL,
+  Role TEXT NOT NULL, -- Admin / Manager / Worker
+  Phone TEXT,
+  Email TEXT,
+  IsActive INTEGER DEFAULT 1
+);
+
+-- Lines (الخطوط)
+CREATE TABLE Lines (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  CategoryId INTEGER NOT NULL,
+  PhoneNumber TEXT UNIQUE,
+  SerialNumber TEXT,
+  Status TEXT, -- Available / Assigned / Returned / Blocked / Expired / InWallet / NeedsConfirmation
+  AssignedToId INTEGER,
+  AssignedAt DATETIME,
+  ExpectedReturnDate DATETIME,
+  HasWallet INTEGER DEFAULT 0,
+  WalletId TEXT,
+  Notes TEXT,
+  CreatedAt DATETIME DEFAULT (datetime('now')),
+  UpdatedAt DATETIME
+);
+
+-- Assignment log (سجل التسليم)
+CREATE TABLE AssignmentLogs (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  LineId INTEGER NOT NULL,
+  FromUserId INTEGER,
+  ToUserId INTEGER,
+  AssignedAt DATETIME NOT NULL,
+  ExpectedReturnDate DATETIME,
+  ReturnedAt DATETIME,
+  Status TEXT, -- Pending / Returned / Overdue / Cancelled
+  Notes TEXT
+);
+
+-- Alert rules
+CREATE TABLE AlertRules (
+  Id INTEGER PRIMARY KEY AUTOINCREMENT,
+  CategoryId INTEGER, -- NULL => global default
+  DaysBeforeExpiry INTEGER NOT NULL DEFAULT 30,
+  Enabled INTEGER NOT NULL DEFAULT 1,
+  AlertType TEXT NOT NULL -- Expiry, AssignmentDue, NotReturned
+);
+
+
+FKs & indices: Create appropriate FK constraints and indices via EF Core migrations. Include indices on PhoneNumber, CategoryId, AssignedToId, ExpectedReturnDate, AssignedAt.
+
+EF Core POCO models (must exist and match DB)
+
+Provide POCOs that reflect the schema and navigation properties. Example (use enum types where appropriate, but store status as strings for compatibility):
+
+public class Operator { /* Id, Name, ColorHex, IconPath, ICollection<Category> Categories */ }
+public class Category  { /* ... properties from schema ... ICollection<Line> Lines */ }
+public class Line { /* ... Category, PhoneNumber, SerialNumber, Status, AssignedToId, AssignedAt, ExpectedReturnDate, HasWallet, WalletId, Notes */ }
+public class AssignmentLog { /* ... Line, FromUserId, ToUserId, AssignedAt, ExpectedReturnDate, ReturnedAt, Status, Notes */ }
+public class AlertRule { /* ... CategoryId?, DaysBeforeExpiry, Enabled, AlertType */ }
+public class User { /* Id, FullName, Role, Phone, Email, IsActive */ }
+
+
+Add AuditTrail entity for tracking CRUD operations (who, what, when, old/new values).
+
+Seed the 4 operators with defined colors:
+
+Etisalat => #008000 (green)
+
+Vodafone => #FF0000 (red)
+
+We => #800080 (purple)
+
+Orange => #FFA500 (orange)
+
+Project structure (folder layout)
+/src
+  /App (WPF)
+    App.xaml
+    MainWindow.xaml
+  /App/Views
+  /App/ViewModels
+  /App/Converters
+  /App/Resources (Styles, Arabic resources, Images)
+  /Domain (POCOs)
+  /Infrastructure
+    /Data (AppDbContext, Migrations, IUnitOfWork)
+    /Repositories (IRepository<T>, CategoryRepository, LineRepository, etc)
+    /Services (IAlertService, AlertService, IImportService, ImportService, IReportService, ReportService, IQRService, QRService, IBackupService)
+  /Shared (DTOs, Enums)
+  /Tests (unit & integration)
+
+MVVM requirements & examples
+
+Implement MVVM strictly. Provide base ViewModelBase with INotifyPropertyChanged. Use RelayCommand / AsyncRelayCommand.
+
+Include these ViewModels at minimum:
+
+MainViewModel — navigation, aggregated totals, startup alert checks.
+
+OperatorsViewModel — CRUD for operators.
+
+CategoriesViewModel — CRUD for categories with validation for expiry/wallet flags.
+
+LinesViewModel — list of lines, filtering, search, multi-select for bulk actions.
+
+AssignViewModel — assign lines to worker (example provided below).
+
+ReportsViewModel — generate reports and export.
+
+SettingsViewModel — app settings (alert timing defaults, backup schedule).
+
+AssignCommand example (must be implemented exactly or equivalent):
+
+public class AssignViewModel : ViewModelBase {
+    public ObservableCollection<Line> SelectedLines { get; set; }
+    public User SelectedWorker { get; set; }
+    public DateTime? ExpectedReturnDate { get; set; }
+    public ICommand AssignCommand { get; }
+
+    public AssignViewModel() {
+        AssignCommand = new RelayCommand(AssignToWorker, CanAssign);
+    }
+
+    private bool CanAssign() => SelectedWorker != null && SelectedLines.Any();
+
+    private async void AssignToWorker() {
+        foreach(var line in SelectedLines) {
+            line.Status = "Assigned";
+            line.AssignedToId = SelectedWorker.Id;
+            line.AssignedAt = DateTime.Now;
+            line.ExpectedReturnDate = ExpectedReturnDate;
+            var log = new AssignmentLog { LineId = line.Id, FromUserId = CurrentUser.Id, ToUserId = SelectedWorker.Id, AssignedAt = DateTime.Now, ExpectedReturnDate = ExpectedReturnDate, Status="Pending" };
+            _db.AssignmentLogs.Add(log);
+        }
+        await _db.SaveChangesAsync();
+    }
+}
+
+WPF / XAML requirements (RTL Arabic)
+
+Set global flow direction in App.xaml:
+
+<Application ...>
+  <Application.Resources>
+    <Style TargetType="Window">
+      <Setter Property="FlowDirection" Value="RightToLeft" />
+      <Setter Property="Language" Value="ar-SA" />
+    </Style>
+  </Application.Resources>
+</Application>
+
+
+Use Arabic resource files for strings and ensure all text uses Arabic.
+
+Provide HexToBrushConverter to convert ColorHex to Brush.
+
+DataGrid line example (Arabic headers):
+
+<DataGrid ItemsSource="{Binding Lines}">
+  <DataGrid.Columns>
+    <DataGridTemplateColumn Header="المشغل">
+      <DataGridTemplateColumn.CellTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Ellipse Width="14" Height="14" Fill="{Binding Category.Operator.ColorHex, Converter={StaticResource HexToBrushConverter}}"/>
+            <TextBlock Text="{Binding Category.Operator.Name}" Margin="6,0,0,0"/>
+          </StackPanel>
+        </DataTemplate>
+      </DataGridTemplateColumn.CellTemplate>
+    </DataGridTemplateColumn>
+    <DataGridTextColumn Header="رقم الخط" Binding="{Binding PhoneNumber}" />
+    <DataGridTextColumn Header="الحالة" Binding="{Binding Status}" />
+    <DataGridTextColumn Header="مستلم إلى" Binding="{Binding AssignedTo.FullName}" />
+    <DataGridTextColumn Header="تاريخ الاستحقاق" Binding="{Binding ExpectedReturnDate, StringFormat=d}" />
+  </DataGrid.Columns>
+</DataGrid>
+
+
+Provide templates for operator-colored top-bars, category cards, and RTL dialog layouts.
+
+Provide printing styles and export buttons for each report.
+
+Import: CSV & QR
+
+CSV import
+
+Use CsvHelper. Support header or headerless CSV.
+
+Expected CSV columns: PhoneNumber,SerialNumber,WalletId,CategoryId OR PhoneNumber,SerialNumber,WalletName.
+
+On import, validate duplicates (phone uniqueness), collect errors into a report shown to user, and allow user to resolve conflicts.
+
+QR import
+
+Accept two modes:
+
+Webcam scanning using ZXing — window shows camera feed and scans continuously; on detection parse data and add to staging list.
+
+Image file — allow user to open an image file containing QR code.
+
+QR payload formats supported:
+
+JSON: {"phone":"01012345678","serial":"SN12345","wallet":"WLT001","categoryId":3}
+
+Pipe-delimited: 01012345678|SN12345|WLT001|3
+
+On each successful scan show a confirm dialog in Arabic with parsed fields; user can edit before saving.
+
+Support batch scanning (scan multiple QRs and then "Save All").
+
+Alert logic — AlertService (detailed)
+
+Implement IAlertService with the following behavior:
+
+When to run
+
+Immediately at app startup.
+
+Then periodically (configurable) — default every 30 minutes (configurable 15–60).
+
+Also run after any import, assignment, or status change.
+
+Types of alerts
+
+Expiry alerts
+
+A category may have HasExpiry = true. For each line where expiry applies, compute reference = l.AssignedAt ?? l.CreatedAt then expiryDate = reference.AddDays(category.ExpiryDays).
+
+Use AlertRule if exists for category with AlertType = "Expiry"; fall back to global AlertRules (CategoryId NULL) or Category.DefaultAlertDaysBeforeExpiry.
+
+If expiryDate - Today <= DaysBeforeExpiry create an alert item.
+
+Assignment due / Not returned (overdue)
+
+For assignments: if ExpectedReturnDate < Today and Line.Status != "Returned" or corresponding AssignmentLog status not Returned → mark overdue.
+
+AlertType = "NotReturned" or "AssignmentDue" as configured.
+
+Custom category alerts if RequiresConfirmation flagged and line enters NeedsConfirmation status — create notification.
+
+Alert presentation
+
+Show in-app toast notifications and a central Notification Center page that lists active alerts with filtering by type and operator.
+
+Alerts should include actionable buttons (e.g., "Mark returned", "Send reminder (email/SMS)").
+
+Example check expiry method
+
+public async Task<List<AlertItem>> CheckExpiryAlertsAsync() {
+    var items = new List<AlertItem>();
+    var categories = await _db.Categories.Where(c => c.HasExpiry).ToListAsync();
+    foreach(var cat in categories) {
+        var rule = await _db.AlertRules.FirstOrDefaultAsync(r => r.CategoryId == cat.Id && r.AlertType == "Expiry") 
+                   ?? await _db.AlertRules.FirstOrDefaultAsync(r => r.CategoryId == null && r.AlertType == "Expiry");
+        int daysBefore = rule?.DaysBeforeExpiry ?? cat.DefaultAlertDaysBeforeExpiry;
+        var lines = await _db.Lines.Where(l => l.CategoryId == cat.Id).ToListAsync();
+        foreach(var l in lines) {
+            DateTime reference = l.AssignedAt ?? l.CreatedAt;
+            DateTime expiry = reference.AddDays(cat.ExpiryDays);
+            if((expiry - DateTime.Today).TotalDays <= daysBefore) {
+                items.Add(new AlertItem { Line = l, Message = $"خط {l.PhoneNumber} فترته تنتهي {expiry:d}" });
+            }
+        }
+    }
+    return items;
+}
+
+Reports (must implement these reports + export options)
+
+All reports must be viewable in UI and exportable to PDF/Excel/CSV.
+
+Counts per Operator / Category
+
+SQL provided in prompt. Provide LINQ/EF version. Show operator color and icon in report header.
+
+Expiring / Expired lines (date range / days ahead)
+
+Accept fromDate & toDate or daysAhead parameter (30/60/90). Compute expiry as (l.AssignedAt ?? l.CreatedAt) + category.ExpiryDays. Filter expiry BETWEEN fromDate AND toDate.
+
+Worker delays / overdue assignments
+
+For each worker: count overdue (ExpectedReturnDate < today and not returned), average delay days, and list of delayed lines. Provide ability to drill into worker details.
+
+Assignment history
+
+Show AssignmentLogs filtered by date, worker, line.
+
+Example LINQ for counts (fix variable naming):
+
+var result = await _db.Lines
+    .Include(l => l.Category).ThenInclude(c => c.Operator)
+    .GroupBy(l => new { OperatorName = l.Category.Operator.Name, CategoryName = l.Category.Name })
+    .Select(g => new {
+       Operator = g.Key.OperatorName,
+       Category = g.Key.CategoryName,
+       Count = g.Count()
+    }).ToListAsync();
+
+
+Implementation notes
+
+Use QuestPDF to generate printable PDF reports and ClosedXML to create .xlsx.
+
+Offer RDLC/ReportViewer if in-app print preview is required.
+
+UI reports page UX
+
+Reports page with tabs:
+
+Summary cards (totals: total lines, assigned, expired).
+
+Counts by operator/category — table + filter + Export.
+
+Lines near expiry — filter (30/60/90 days) + select + Notify Selected + Export.
+
+Worker delays — list of workers, selecting one shows detail and exports.
+
+Each report row allows selection and bulk actions (Notify, Mark returned, Export).
+
+Backup & Restore
+
+Save DB at %APPDATA%/Vendor/App/mobile_lines.db.
+
+Provide BackupService with BackupDatabase() that copies DB to backups folder with timestamped filename: mobile_lines_yyyyMMdd_HHmmss.db.
+
+Provide Restore UI to pick a backup file and replace current DB (with confirmation & app restart).
+
+Optionally implement scheduled backup (daily) in settings.
+
+Example code:
+
+public void BackupDatabase() {
+    string src = Path.Combine(AppDataPath, "mobile_lines.db");
+    string dest = Path.Combine(BackupsFolder, $"mobile_lines_{DateTime.Now:yyyyMMdd_HHmmss}.db");
+    File.Copy(src, dest);
+}
+
+Security & multi-user considerations
+
+Local app auth: implement simple users/roles with Users table (Admin/Manager/Worker).
+
+For multi-user networked use, recommend upgrading to SQL Server Express later — include guidance in README.
+
+Protect DB file permissions; store in AppData and warn in docs.
+
+Provide audit logs of critical actions (assign, return, import, delete) in AuditTrail.
+
+Extras & UX polish
+
+Dark mode theme toggle.
+
+Saved Filters / Favorites for frequent queries.
+
+Print / export QR labels for selected lines (use QR generation library to export PNG or print sheet).
+
+Email / SMS reminders: provide INotificationSender with pluggable implementations (SMTP, SMS provider) — do not implement external SMS provider defaults, but provide interface and a basic SMTP email sender.
+
+Acceptance criteria / deliverables (what the AI must produce)
+
+Full Visual Studio solution with projects matching folder structure.
+
+EF Core AppDbContext and migrations that create mobile_lines.db with the exact schema and seed operators.
+
+C# POCOs matching schema, plus DTOs where appropriate.
+
+MVVM ViewModels, Commands, and Views (XAML) for Operators, Categories, Lines, Assignments, Reports, Settings, Notifications.
+
+Services:
+
+AlertService (background timer + manual run + unit tests)
+
+ImportService (CSV & QR)
+
+QRService (ZXing integration for webcam & image)
+
+ReportService (QuestPDF + ClosedXML)
+
+BackupService
+
+AuditService
+
+Example pages with Arabic UI and FlowDirection RTL, operator colors shown in UI, icons included.
+
+Unit tests for business logic (alert computation, import parsing, assignment workflow).
+
+README (Arabic + English) with install, run, migration & backup instructions, and where DB is stored.
+
+Sample data seed: at least the 4 operators and a few categories + sample lines for demo.
+
+Export buttons for PDF/Excel/CSV on report pages.
+
+Localization resource files (.resx) for Arabic strings.
+
+Implementation of PRAGMA foreign_keys = ON; on DB connection.
+
+A short deployment/packaging guide (single-installer or xcopy deploy) and notes about upgrading DB.
+
+Non-functional requirements
+
+Proper error handling and user-friendly Arabic messages.
+
+Async database operations (use async/await).
+
+Use DI and interfaces for testability.
+
+Follow SOLID principles and separation of concerns.
+
+Good UI performance with virtualization for large lists.
+
+Unit & integration tests covering core logic.
+
+Data validation & business rules (explicit)
+
+Phone numbers must be unique; show conflict resolution UI when duplicates encountered.
+
+Category HasExpiry = true => ExpiryDays used. Default ExpiryDays = 90.
+
+If RequiresWallet = true then HasWallet must be set when adding a line or show validation error.
+
+When assigning: status becomes Assigned; an AssignmentLog with Status = Pending is created.
+
+On return: ReturnedAt is recorded in log; status becomes Returned.
+
+Overdue detection: ExpectedReturnDate < DateTime.Today && Status != Returned.
+
+AllowAddNumbers = 0 disallows adding numbers into that category in UI.
+
+Testing examples (include unit test cases)
+
+Test AlertService.CheckExpiryAlertsAsync():
+
+Case: line created 85 days ago, category expiry 90 => if DaysBeforeExpiry=30, not alert.
+
+Case: line created 75 days ago, expiry in 15 days, DaysBeforeExpiry=30 => alert.
+
+Test ImportService.ParseQrPayload() for JSON and pipe formats.
+
+Test AssignViewModel.AssignToWorker() updates line statuses & creates logs.
+
+Developer notes & instructions for the AI/developer you give this prompt to
+
+Provide code comments in English and Arabic where helpful.
+
+Keep UI strings in .resx files for localization; do not hardcode Arabic in XAML code-behind.
+
+Use HexToBrushConverter for operator colors and ensure contrast for text.
+
+For icons, include sample PNGs or instruct to use vector icons (e.g., embedded SVG -> convert to XAML).
+
+Ensure user can configure global alert defaults in Settings (days before expiry, alert check interval).
+
+The Notification Center must allow acknowledging/dismissing alerts and bulk actions (send reminder, mark returned).
+
+Include integration tests that run against an in-memory SQLite or test DB file.
+
+Example commit / milestone checklist to request from the AI/developer
+
+Project scaffold + EF Core context + migrations + seed operators.
+
+CRUD for Operators & Categories + UI (Arabic).
+
+Lines list + add/edit + Assign/Return flow + AssignmentLog.
+
+CSV import + validation.
+
+QR scan (image + webcam) + batch add.
+
+AlertService + Notification Center + timers.
+
+Reports + export PDF/Excel + print preview.
+
+Backup/Restore + Settings page.
+
+Unit tests + README + packaging notes.
+
+Final notes (requirements you must enforce)
+
+Do not change the database table names or column names without also providing migration scripts to update existing DBs.
+
+Use PRAGMA foreign_keys = ON; on every SQLite connection.
+
+The application must be fully Arabic (RTL) UI. All labels, dialogs, error messages, tooltips must be Arabic by default, with resource-based strings to allow adding other languages later.
+
+Make operator colors exactly as seeded (Etisalat green, Vodafone red, We purple, Orange orange).
+
+Implement alert timing behavior in Settings with defaults and a safe periodic check (30 minutes default).
+
+Include sample data and instructions for creating or migrating the DB.
