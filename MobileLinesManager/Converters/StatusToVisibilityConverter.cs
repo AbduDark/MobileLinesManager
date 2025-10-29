@@ -10,9 +10,9 @@ namespace MobileLinesManager.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string status)
+            if (value is string status && parameter is string expectedStatus)
             {
-                return status == "Pending" ? Visibility.Visible : Visibility.Collapsed;
+                return status == expectedStatus ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
         }

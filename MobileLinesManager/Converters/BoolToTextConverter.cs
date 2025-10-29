@@ -9,15 +9,11 @@ namespace MobileLinesManager.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue && parameter is string texts)
+            if (value is bool boolValue)
             {
-                var parts = texts.Split('|');
-                if (parts.Length == 2)
-                {
-                    return boolValue ? parts[0] : parts[1];
-                }
+                return boolValue ? "نعم" : "لا";
             }
-            return string.Empty;
+            return "لا";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

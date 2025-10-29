@@ -13,7 +13,7 @@ namespace MobileLinesManager.Converters
             {
                 return !boolValue;
             }
-            return false;
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

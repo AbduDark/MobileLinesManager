@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MobileLinesManager.Data;
 using MobileLinesManager.Models;
+using MobileLinesManager.ViewModels;
 
 namespace MobileLinesManager.ViewModels
 {

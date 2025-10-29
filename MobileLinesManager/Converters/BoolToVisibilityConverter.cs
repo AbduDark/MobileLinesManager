@@ -12,16 +12,18 @@ namespace MobileLinesManager.Converters
         {
             if (value is bool boolValue)
             {
-                bool inverse = parameter?.ToString() == "Inverse";
-                bool result = inverse ? !boolValue : boolValue;
-                return result ? Visibility.Visible : Visibility.Collapsed;
+                return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
             return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (value is Visibility visibility)
+            {
+                return visibility == Visibility.Visible;
+            }
+            return false;
         }
     }
 }
