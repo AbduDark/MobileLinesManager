@@ -3,6 +3,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Data;
 using MobileLinesManager.Services;
+using MobileLinesManager.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace MobileLinesManager
