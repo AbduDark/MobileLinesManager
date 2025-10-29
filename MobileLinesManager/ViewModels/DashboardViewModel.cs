@@ -1,5 +1,4 @@
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Linq;
@@ -42,34 +41,47 @@ namespace MobileLinesManager.ViewModels
             set { _expiredLines = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<Operator> Operators { get; set; }
+        // ملاحظة: غيّر النوع من Operator إلى OperatorViewModel
+        public ObservableCollection<OperatorViewModel> Operators { get; set; }
 
         public DashboardViewModel(AppDbContext db)
         {
             _db = db;
-            Operators = new ObservableCollection<Operator>();
+            Operators = new ObservableCollection<OperatorViewModel>();
             _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
         {
             var lines = await _db.Lines.Include(l => l.Category).ToListAsync();
-            
+
             TotalLines = lines.Count;
             AvailableLines = lines.Count(l => !l.IsAssigned);
             AssignedLines = lines.Count(l => l.IsAssigned);
-            ExpiredLines = lines.Count(l => l.Category.HasExpiry && l.ExpectedReturnDate.HasValue && l.ExpectedReturnDate.Value < System.DateTime.Today);
+            ExpiredLines = lines.Count(l =>
+                l.Category.HasExpiry &&
+                l.ExpectedReturnDate.HasValue &&
+                l.ExpectedReturnDate.Value < System.DateTime.Today);
 
-            var operators = await _db.Operators.Include(o => o.Categories).ToListAsync();
+            var operators = await _db.Operators
+                                     .Include(o => o.Categories)
+                                     .ThenInclude(c => c.Lines)
+                                     .ToListAsync();
+
             Operators.Clear();
             foreach (var op in operators)
             {
-                Operators.Add(op);
+                Operators.Add(new OperatorViewModel
+                {
+                    Id = op.Id,
+                    Name = op.Name,
+                    ColorHex = op.ColorHex,
+                    Categories = op.Categories
+                });
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

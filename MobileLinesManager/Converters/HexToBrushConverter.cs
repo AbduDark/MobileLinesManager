@@ -1,5 +1,4 @@
-
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,13 +13,17 @@ namespace MobileLinesManager.Converters
             {
                 try
                 {
-                    return (SolidColorBrush)new BrushConverter().ConvertFrom(hexColor);
+                    if (!hexColor.StartsWith("#"))
+                        hexColor = "#" + hexColor;
+
+                    return (SolidColorBrush)(new BrushConverter().ConvertFromString(hexColor));
                 }
                 catch
                 {
                     return Brushes.Gray;
                 }
             }
+
             return Brushes.Gray;
         }
 
