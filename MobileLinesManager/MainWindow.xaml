@@ -1,4 +1,3 @@
-
 <Window x:Class="MobileLinesManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,6 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MobileLinesManager"
         xmlns:vm="clr-namespace:MobileLinesManager.ViewModels"
+        xmlns:views="clr-namespace:MobileLinesManager.Views"
+        xmlns:viewmodels="clr-namespace:MobileLinesManager.ViewModels"
         mc:Ignorable="d"
         Title="إدارة خطوط الموبايل" 
         Height="768" 
@@ -13,13 +14,35 @@
         WindowStartupLocation="CenterScreen"
         FlowDirection="RightToLeft"
         Language="ar-SA">
-    
-    <Grid>
+
+    <Window.Resources>
+        <!-- ViewModels -->
+        <vm:MainViewModel x:Key="MainVM"/>
+        <viewmodels:ReportsViewModel x:Key="ReportsVM"/>
+
+        <!-- Views -->
+        <local:DashboardView x:Key="DashboardView"/>
+        <local:LinesView x:Key="LinesView"/>
+        <local:AssignmentsView x:Key="AssignmentsView"/>
+        <local:CategoriesView x:Key="CategoriesView"/>
+        <local:ReportsView x:Key="ReportsView" DataContext="{Binding Source={StaticResource ReportsVM}}"/>
+
+        <viewmodels:AuditTrailViewModel x:Key="AuditTrailVM"/>
+        <views:AuditTrailView x:Key="AuditTrailView" DataContext="{Binding Source={StaticResource AuditTrailVM}}"/>
+
+        <viewmodels:SettingsViewModel x:Key="SettingsVM"/>
+        <views:SettingsView x:Key="SettingsView" DataContext="{Binding Source={StaticResource SettingsVM}}"/>
+
+        <!-- Converters -->
+        <local:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
+    </Window.Resources>
+
+    <Grid DataContext="{Binding Source={StaticResource MainVM}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
@@ -34,7 +57,7 @@
                           Foreground="White" 
                           VerticalAlignment="Center" 
                           Margin="20,0"/>
-                
+
                 <StackPanel Orientation="Horizontal" 
                            HorizontalAlignment="Left" 
                            VerticalAlignment="Center" 
@@ -66,80 +89,61 @@
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
-                
+
                 <Button Content="الخطوط" 
                        Command="{Binding NavigateCommand}" 
                        CommandParameter="Lines"
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
-                
+
                 <Button Content="التسليمات" 
                        Command="{Binding NavigateCommand}" 
                        CommandParameter="Assignments"
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
-                
+
                 <Button Content="الفئات" 
                        Command="{Binding NavigateCommand}" 
                        CommandParameter="Categories"
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
-                
+
                 <Button Content="التقارير" 
                        Command="{Binding NavigateCommand}" 
                        CommandParameter="Reports"
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
+                <Button Content="سجل التدقيق" Command="{Binding NavigateCommand}" CommandParameter="AuditTrail" 
+                        Style="{StaticResource SecondaryButton}" 
+                        Margin="0,5" 
+                        HorizontalAlignment="Stretch"/>
+                <Button Content="الإعدادات" Command="{Binding NavigateCommand}" CommandParameter="Settings" 
+                        Style="{StaticResource SecondaryButton}" 
+                        Margin="0,5" 
+                        HorizontalAlignment="Stretch"/>
             </StackPanel>
         </Border>
 
         <!-- Content Area -->
-        <ContentControl Grid.Row="1" Grid.Column="1" Margin="10">
-            <ContentControl.Style>
-                <Style TargetType="ContentControl">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding CurrentView}" Value="Dashboard">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <local:DashboardView/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding CurrentView}" Value="Lines">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <local:LinesView/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding CurrentView}" Value="Assignments">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <local:AssignmentsView/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding CurrentView}" Value="Categories">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <local:CategoriesView/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding CurrentView}" Value="Reports">
-                            <Setter Property="Content">
-                                <Setter.Value>
-                                    <local:ReportsView/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ContentControl.Style>
-        </ContentControl>
+        <Grid Grid.Row="1" Grid.Column="1" Margin="10">
+            <ContentPresenter Content="{StaticResource DashboardView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Dashboard}"/>
+            <ContentPresenter Content="{StaticResource LinesView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Lines}"/>
+            <ContentPresenter Content="{StaticResource AssignmentsView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Assignments}"/>
+            <ContentPresenter Content="{StaticResource CategoriesView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Categories}"/>
+            <ContentPresenter Content="{StaticResource ReportsView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Reports}"/>
+            <ContentPresenter Content="{StaticResource AuditTrailView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=AuditTrail}"/>
+            <ContentPresenter Content="{StaticResource SettingsView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Settings}"/>
+        </Grid>
     </Grid>
 </Window>

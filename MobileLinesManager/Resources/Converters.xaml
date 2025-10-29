@@ -6,5 +6,6 @@
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:BoolToTextConverter x:Key="BoolToTextConverter"/>
     <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
-
+    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
 </ResourceDictionary>

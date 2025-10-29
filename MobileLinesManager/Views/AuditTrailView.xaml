@@ -1,0 +1,87 @@
+
+<UserControl x:Class="MobileLinesManager.Views.AuditTrailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="سجل التدقيق" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <!-- Filters -->
+        <Border Grid.Row="1" Background="#F5F5F5" Padding="15" CornerRadius="8" Margin="0,0,0,15">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Date Filters -->
+                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,0">
+                    <TextBlock Text="من تاريخ:" Margin="0,0,0,5"/>
+                    <DatePicker SelectedDate="{Binding StartDate}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
+                    <TextBlock Text="إلى تاريخ:" Margin="0,0,0,5"/>
+                    <DatePicker SelectedDate="{Binding EndDate}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,10,0">
+                    <TextBlock Text="الكيان:" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SearchEntity, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Row="0" Grid.Column="3">
+                    <TextBlock Text="الإجراء:" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SearchAction, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <!-- Filter Buttons -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="4" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+                    <Button Content="تصفية" Command="{Binding FilterAuditTrailsCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,10,0"/>
+                    <Button Content="مسح التصفية" Command="{Binding ClearFiltersCommand}" Style="{StaticResource SecondaryButton}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Audit Trail DataGrid -->
+        <DataGrid Grid.Row="2" ItemsSource="{Binding AuditTrails}" 
+                  SelectedItem="{Binding SelectedAudit}"
+                  AutoGenerateColumns="False" 
+                  IsReadOnly="True"
+                  CanUserAddRows="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="التاريخ والوقت" Binding="{Binding Timestamp, StringFormat='{}{0:yyyy-MM-dd HH:mm:ss}'}" Width="150"/>
+                <DataGridTextColumn Header="المستخدم" Binding="{Binding User.FullName}" Width="150"/>
+                <DataGridTextColumn Header="الكيان" Binding="{Binding EntityName}" Width="120"/>
+                <DataGridTextColumn Header="الإجراء" Binding="{Binding Action}" Width="100"/>
+                <DataGridTextColumn Header="القيم القديمة" Binding="{Binding OldValues}" Width="*"/>
+                <DataGridTextColumn Header="القيم الجديدة" Binding="{Binding NewValues}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Summary -->
+        <Border Grid.Row="3" Background="#E8F4F8" Padding="10" CornerRadius="4" Margin="0,15,0,0">
+            <TextBlock>
+                <Run Text="إجمالي السجلات: "/>
+                <Run Text="{Binding AuditTrails.Count}" FontWeight="Bold"/>
+            </TextBlock>
+        </Border>
+    </Grid>
+</UserControl>

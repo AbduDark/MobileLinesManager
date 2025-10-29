@@ -1,0 +1,104 @@
+
+<UserControl x:Class="MobileLinesManager.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" Text="الإعدادات" FontSize="24" FontWeight="Bold" Margin="0,0,0,20"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Backup Section -->
+                <Border Background="White" Padding="20" CornerRadius="8" Margin="0,0,0,20" 
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="النسخ الاحتياطي والاستعادة" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        
+                        <!-- Create Backup -->
+                        <GroupBox Header="إنشاء نسخة احتياطية" Margin="0,0,0,20">
+                            <StackPanel Margin="10">
+                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,10">
+                                    قم بإنشاء نسخة احتياطية من قاعدة البيانات الحالية للحفاظ على بياناتك آمنة.
+                                </TextBlock>
+                                <Button Content="إنشاء نسخة احتياطية جديدة" 
+                                        Command="{Binding CreateBackupCommand}"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                                        Style="{StaticResource PrimaryButton}" 
+                                        HorizontalAlignment="Right"/>
+                                
+                                <TextBlock Text="{Binding LastBackupPath, StringFormat='آخر نسخة احتياطية: {0}'}" 
+                                           Margin="0,10,0,0" 
+                                           Foreground="Green"
+                                           TextWrapping="Wrap"
+                                           Visibility="{Binding LastBackupPath, Converter={StaticResource NullToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Restore Backup -->
+                        <GroupBox Header="استعادة نسخة احتياطية">
+                            <StackPanel Margin="10">
+                                <TextBlock TextWrapping="Wrap" Margin="0,0,0,10" Foreground="DarkOrange">
+                                    تحذير: ستستبدل هذه العملية جميع البيانات الحالية بالنسخة الاحتياطية المحددة.
+                                </TextBlock>
+                                
+                                <TextBlock Text="النسخ الاحتياطية المتاحة:" Margin="0,0,0,5"/>
+                                <ListBox ItemsSource="{Binding AvailableBackups}" 
+                                         SelectedItem="{Binding SelectedBackup}"
+                                         Height="150" 
+                                         Margin="0,0,0,10"/>
+                                
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="تحديث القائمة" 
+                                            Command="{Binding RefreshBackupsCommand}"
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Margin="0,0,10,0"/>
+                                    <Button Content="استعراض..." 
+                                            Command="{Binding BrowseBackupCommand}"
+                                            Style="{StaticResource SecondaryButton}" 
+                                            Margin="0,0,10,0"/>
+                                    <Button Content="استعادة" 
+                                            Command="{Binding RestoreBackupCommand}"
+                                            IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBoolConverter}}"
+                                            Style="{StaticResource PrimaryButton}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </Border>
+
+                <!-- Application Info -->
+                <Border Background="White" Padding="20" CornerRadius="8" 
+                        BorderBrush="#E0E0E0" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="معلومات التطبيق" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,15"/>
+                        <TextBlock Text="نظام إدارة خطوط الموبايل" FontSize="16" Margin="0,0,0,5"/>
+                        <TextBlock Text="الإصدار: 1.0.0" Margin="0,0,0,5"/>
+                        <TextBlock Text="© 2024 جميع الحقوق محفوظة" Margin="0,0,0,10"/>
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray">
+                            نظام شامل لإدارة خطوط الموبايل، التسليم للعمال، والتقارير مع دعم QR والنسخ الاحتياطي التلقائي.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Loading Overlay -->
+        <Border Grid.Row="0" Grid.RowSpan="2" 
+                Background="#80000000" 
+                Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="20" Margin="0,0,0,10"/>
+                <TextBlock Text="جاري المعالجة..." Foreground="White" FontSize="16"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
