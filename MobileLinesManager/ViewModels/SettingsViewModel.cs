@@ -19,6 +19,10 @@ namespace MobileLinesManager.ViewModels
         private string _lastBackupPath;
         private bool _isProcessing;
 
+        public SettingsViewModel() : this(new BackupService())
+        {
+        }
+
         public SettingsViewModel(IBackupService backupService)
         {
             _backupService = backupService;

@@ -1,0 +1,18 @@
+The name "MainViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".
+The tag 'ViewToVisibilityConverter' does not exist in XML namespace 'clr-namespace:MobileLinesManager'. Line 37 Position 10.
+The name "ReportsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".
+The name "DashboardView" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The name "LinesView" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The name "AssignmentsView" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The name "CategoriesView" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The name "ReportsView" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The name "AuditTrailViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".
+The name "AuditTrailView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".
+The name "SettingsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".
+The name "SettingsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".
+The name "ViewToVisibilityConverter" does not exist in the namespace "clr-namespace:MobileLinesManager".
+The type 'local:ViewToVisibilityConverter' was not found. Verify that you are not missing an assembly reference and that all referenced assemblies have been built.
+Type 'MainViewModel' is not usable as an object element because it is not public or does not define a public parameterless constructor or a type converter.
+Type 'ReportsViewModel' is not usable as an object element because it is not public or does not define a public parameterless constructor or a type converter.
+Type 'AuditTrailViewModel' is not usable as an object element because it is not public or does not define a public parameterless constructor or a type converter.
+Type 'SettingsViewModel' is not usable as an object element because it is not public or does not define a public parameterless constructor or a type converter.

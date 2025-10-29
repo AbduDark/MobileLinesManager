@@ -21,6 +21,10 @@ namespace MobileLinesManager.ViewModels
         private int _alertCount;
         private ObservableCollection<Operator> _operators;
 
+        public MainViewModel() : this(new AppDbContext(), new AlertService(new AppDbContext()))
+        {
+        }
+
         public MainViewModel(AppDbContext db, IAlertService alertService)
         {
             _db = db;

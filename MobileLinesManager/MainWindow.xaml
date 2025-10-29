@@ -16,25 +16,29 @@
         Language="ar-SA">
 
     <Window.Resources>
-        <!-- ViewModels -->
-        <vm:MainViewModel x:Key="MainVM"/>
-        <viewmodels:ReportsViewModel x:Key="ReportsVM"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Converters.xaml"/>
+                <ResourceDictionary Source="Resources/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- ViewModels -->
+            <vm:MainViewModel x:Key="MainVM"/>
+            <viewmodels:ReportsViewModel x:Key="ReportsVM"/>
 
-        <!-- Views -->
-        <local:DashboardView x:Key="DashboardView"/>
-        <local:LinesView x:Key="LinesView"/>
-        <local:AssignmentsView x:Key="AssignmentsView"/>
-        <local:CategoriesView x:Key="CategoriesView"/>
-        <local:ReportsView x:Key="ReportsView" DataContext="{Binding Source={StaticResource ReportsVM}}"/>
+            <!-- Views -->
+            <views:DashboardView x:Key="DashboardView"/>
+            <views:LinesView x:Key="LinesView"/>
+            <views:AssignmentsView x:Key="AssignmentsView"/>
+            <views:CategoriesView x:Key="CategoriesView"/>
+            <views:ReportsView x:Key="ReportsView" DataContext="{Binding Source={StaticResource ReportsVM}}"/>
 
-        <viewmodels:AuditTrailViewModel x:Key="AuditTrailVM"/>
-        <views:AuditTrailView x:Key="AuditTrailView" DataContext="{Binding Source={StaticResource AuditTrailVM}}"/>
+            <viewmodels:AuditTrailViewModel x:Key="AuditTrailVM"/>
+            <views:AuditTrailView x:Key="AuditTrailView" DataContext="{Binding Source={StaticResource AuditTrailVM}}"/>
 
-        <viewmodels:SettingsViewModel x:Key="SettingsVM"/>
-        <views:SettingsView x:Key="SettingsView" DataContext="{Binding Source={StaticResource SettingsVM}}"/>
-
-        <!-- Converters -->
-        <local:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
+            <viewmodels:SettingsViewModel x:Key="SettingsVM"/>
+            <views:SettingsView x:Key="SettingsView" DataContext="{Binding Source={StaticResource SettingsVM}}"/>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid DataContext="{Binding Source={StaticResource MainVM}}">

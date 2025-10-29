@@ -27,6 +27,10 @@ namespace MobileLinesManager.ViewModels
         private string _reportResult;
         private ObservableCollection<AlertItem> _alerts;
 
+        public ReportsViewModel() : this(new AppDbContext(), new ReportService(new AppDbContext()))
+        {
+        }
+
         public ReportsViewModel(AppDbContext db, IReportService reportService)
         {
             _db = db;

@@ -22,6 +22,10 @@ namespace MobileLinesManager.ViewModels
         private string _searchEntity;
         private string _searchAction;
 
+        public AuditTrailViewModel() : this(new AppDbContext())
+        {
+        }
+
         public AuditTrailViewModel(AppDbContext db)
         {
             _db = db;

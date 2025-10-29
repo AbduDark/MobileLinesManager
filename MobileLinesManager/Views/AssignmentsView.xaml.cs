@@ -1,7 +1,7 @@
 
 using System.Windows.Controls;
 
-namespace MobileLinesManager
+namespace MobileLinesManager.Views
 {
     public partial class AssignmentsView : UserControl
     {
