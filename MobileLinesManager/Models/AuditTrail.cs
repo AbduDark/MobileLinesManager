@@ -12,11 +12,20 @@ namespace MobileLinesManager.Models
         public string EntityName { get; set; }
         
         [Required]
+        public string EntityType { get; set; }
+        
+        public int EntityId { get; set; }
+        
+        [Required]
         public string Action { get; set; } // Create / Update / Delete
         
         public int? UserId { get; set; }
         
         public DateTime Timestamp { get; set; } = DateTime.Now;
+        
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
+        public string Details { get; set; }
         
         public string OldValues { get; set; }
         
