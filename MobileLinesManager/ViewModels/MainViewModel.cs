@@ -101,3 +101,55 @@ namespace MobileLinesManager.ViewModels
         }
     }
 }
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using MobileLinesManager.Commands;
+
+namespace MobileLinesManager.ViewModels
+{
+    public class MainViewModel : INotifyPropertyChanged
+    {
+        private string _currentView = "Dashboard";
+        private int _alertCount = 0;
+
+        public string CurrentView
+        {
+            get => _currentView;
+            set
+            {
+                _currentView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int AlertCount
+        {
+            get => _alertCount;
+            set
+            {
+                _alertCount = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand NavigateCommand { get; }
+
+        public MainViewModel()
+        {
+            NavigateCommand = new RelayCommand<string>(Navigate);
+        }
+
+        private void Navigate(string view)
+        {
+            CurrentView = view;
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+}

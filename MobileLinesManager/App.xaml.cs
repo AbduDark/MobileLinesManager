@@ -48,8 +48,10 @@ namespace MobileLinesManager
 
             // ViewModels
             services.AddTransient<MainViewModel>();
+            services.AddTransient<ViewModels.DashboardViewModel>();
             services.AddTransient<AuditTrailViewModel>();
             services.AddTransient<SettingsViewModel>();
+            services.AddTransient<ViewModels.ReportsViewModel>();
 
             // Windows
             services.AddTransient<MainWindow>();
