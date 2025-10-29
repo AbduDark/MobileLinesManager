@@ -31,6 +31,6 @@ namespace MobileLinesManager.Models
 
         public virtual User ToUser { get; set; }
 
-        public string Worker => User?.Name ?? "غير معروف";
+        public string Worker => ToUser?.FullName ?? "غير معروف";
     }
 }

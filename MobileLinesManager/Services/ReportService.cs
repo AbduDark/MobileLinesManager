@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using MobileLinesManager.Data;
+using MobileLinesManager.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -488,9 +489,9 @@ namespace MobileLinesManager.Services
                 .Include(a => a.Line)
                     .ThenInclude(l => l.Category)
                         .ThenInclude(c => c.Operator)
-                .Include(a => a.Worker)
-                .Where(a => a.AssignedDate >= startDate && a.AssignedDate <= endDate)
-                .OrderByDescending(a => a.AssignedDate)
+                .Include(a => a.ToUser)
+                .Where(a => a.AssignedAt >= startDate && a.AssignedAt <= endDate)
+                .OrderByDescending(a => a.AssignedAt)
                 .ToListAsync();
 
             var report = "تقرير سجل التسليمات والإرجاعات\n";
@@ -508,12 +509,12 @@ namespace MobileLinesManager.Services
                 {
                     report += $"رقم الهاتف: {assignment.Line?.PhoneNumber}\n";
                     report += $"المشغل: {assignment.Line?.Category?.Operator?.Name}\n";
-                    report += $"العامل: {assignment.Worker?.FullName}\n";
-                    report += $"تاريخ التسليم: {assignment.AssignedDate:yyyy-MM-dd}\n";
+                    report += $"العامل: {assignment.ToUser?.FullName ?? "غير معروف"}\n";
+                    report += $"تاريخ التسليم: {assignment.AssignedAt:yyyy-MM-dd}\n";
                     
-                    if (assignment.ReturnedDate.HasValue)
+                    if (assignment.ReturnedAt.HasValue)
                     {
-                        report += $"تاريخ الإرجاع: {assignment.ReturnedDate.Value:yyyy-MM-dd}\n";
+                        report += $"تاريخ الإرجاع: {assignment.ReturnedAt.Value:yyyy-MM-dd}\n";
                     }
                     else
                     {
