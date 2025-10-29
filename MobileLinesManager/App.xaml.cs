@@ -23,6 +23,9 @@ namespace MobileLinesManager
             var services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
+            
+            // Set global service provider for XAML access
+            ServiceLocator.ServiceProvider = _serviceProvider;
 
             // Initialize database
             using (var scope = _serviceProvider.CreateScope())
@@ -50,13 +53,9 @@ namespace MobileLinesManager
 
             // ViewModels
             services.AddTransient<MainViewModel>();
-            services.AddTransient<ViewModels.DashboardViewModel>();
-            services.AddTransient<ViewModels.AuditTrailViewModel>();
-            services.AddTransient<ViewModels.SettingsViewModel>();
-            services.AddTransient<ViewModels.ReportsViewModel>();
-            services.AddTransient<ViewModels.AssignViewModel>();
-            services.AddTransient<ViewModels.LinesViewModel>();
-            services.AddTransient<ViewModels.CategoriesViewModel>();
+            services.AddTransient<AuditTrailViewModel>();
+            services.AddTransient<SettingsViewModel>();
+            services.AddTransient<ReportsViewModel>();
 
             // Windows
             services.AddTransient<MainWindow>();

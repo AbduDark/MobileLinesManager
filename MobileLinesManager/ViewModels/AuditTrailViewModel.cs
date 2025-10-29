@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Commands;
 using MobileLinesManager.Data;
 using MobileLinesManager.Models;
@@ -22,7 +23,8 @@ namespace MobileLinesManager.ViewModels
         private string _searchEntity;
         private string _searchAction;
 
-        public AuditTrailViewModel() : this(new AppDbContext())
+        public AuditTrailViewModel() : this(
+            ServiceLocator.ServiceProvider?.GetService<AppDbContext>() ?? new AppDbContext())
         {
         }
 

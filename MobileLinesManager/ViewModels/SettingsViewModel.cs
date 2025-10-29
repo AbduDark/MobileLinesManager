@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Commands;
 using MobileLinesManager.Services;
 using Microsoft.Win32;
@@ -19,7 +20,8 @@ namespace MobileLinesManager.ViewModels
         private string _lastBackupPath;
         private bool _isProcessing;
 
-        public SettingsViewModel() : this(new BackupService())
+        public SettingsViewModel() : this(
+            ServiceLocator.ServiceProvider?.GetService<IBackupService>() ?? new BackupService())
         {
         }
 

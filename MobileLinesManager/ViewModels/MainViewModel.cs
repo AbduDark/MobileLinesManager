@@ -1,7 +1,9 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Commands;
 using MobileLinesManager.Data;
 using MobileLinesManager.Models;
@@ -21,7 +23,9 @@ namespace MobileLinesManager.ViewModels
         private int _alertCount;
         private ObservableCollection<Operator> _operators;
 
-        public MainViewModel() : this(new AppDbContext(), new AlertService(new AppDbContext()))
+        public MainViewModel() : this(
+            ServiceLocator.ServiceProvider?.GetService<AppDbContext>() ?? new AppDbContext(),
+            ServiceLocator.ServiceProvider?.GetService<IAlertService>() ?? new AlertService(ServiceLocator.ServiceProvider))
         {
         }
 

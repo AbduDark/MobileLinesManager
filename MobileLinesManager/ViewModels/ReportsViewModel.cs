@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Commands;
 using MobileLinesManager.Data;
 using MobileLinesManager.Models;
@@ -27,7 +28,9 @@ namespace MobileLinesManager.ViewModels
         private string _reportResult;
         private ObservableCollection<AlertItem> _alerts;
 
-        public ReportsViewModel() : this(new AppDbContext(), new ReportService(new AppDbContext()))
+        public ReportsViewModel() : this(
+            ServiceLocator.ServiceProvider?.GetService<AppDbContext>() ?? new AppDbContext(),
+            ServiceLocator.ServiceProvider?.GetService<IReportService>() ?? new ReportService(new AppDbContext()))
         {
         }
 
