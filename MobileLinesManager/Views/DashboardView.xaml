@@ -10,7 +10,7 @@
 
     <UserControl.Resources>
         <!-- تحويل اللون الهكس إلى فرشة -->
-        <Converter:HexToBrushConverter x:Key="HexToBrushConverter"/>
+        <conv:HexToBrushConverter x:Key="HexToBrushConverter"/>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">

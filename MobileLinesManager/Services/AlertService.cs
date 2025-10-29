@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.EntityFrameworkCore;
 using MobileLinesManager.Data;
+using Microsoft.Extensions.DependencyInjection;
 using MobileLinesManager.Models;
 
 namespace MobileLinesManager.Services
