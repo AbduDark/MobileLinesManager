@@ -22,7 +22,7 @@ namespace MobileLinesManager.Services
             _db = db;
         }
 
-        public async Task<ImportResult> ImportFromCsvAsync(string filePath, int defaultCategoryId)
+        public async Task<ImportResult> ImportFromCSVAsync(string filePath, int defaultCategoryId)
         {
             var result = new ImportResult();
 
@@ -95,6 +95,66 @@ namespace MobileLinesManager.Services
             catch (Exception ex)
             {
                 result.Errors.Add($"خطأ في قراءة الملف: {ex.Message}");
+            }
+
+            return result;
+        }
+
+        public async Task<ImportResult> ImportFromQRDataAsync(string qrData, int defaultCategoryId)
+        {
+            var result = new ImportResult();
+
+            try
+            {
+                // Expected format: PhoneNumber|SerialNumber|CategoryId|WalletId
+                var parts = qrData.Split('|');
+
+                if (parts.Length < 1)
+                {
+                    result.Errors.Add("صيغة QR غير صحيحة");
+                    return result;
+                }
+
+                var phoneNumber = parts[0];
+
+                // Check if line already exists
+                var exists = await _db.Lines.AnyAsync(l => l.PhoneNumber == phoneNumber);
+                if (exists)
+                {
+                    result.Errors.Add($"الرقم {phoneNumber} موجود بالفعل");
+                    return result;
+                }
+
+                var category = await _db.Categories
+                    .Include(c => c.Operator)
+                    .FirstOrDefaultAsync(c => c.Id == defaultCategoryId);
+
+                if (category == null)
+                {
+                    result.Errors.Add("الفئة المحددة غير موجودة");
+                    return result;
+                }
+
+                var line = new Line
+                {
+                    PhoneNumber = phoneNumber,
+                    SerialNumber = parts.Length > 1 ? parts[1] : null,
+                    CategoryId = defaultCategoryId,
+                    WalletId = parts.Length > 3 ? parts[3] : null,
+                    Status = "Available",
+                    HasWallet = category.RequiresWallet,
+                    CreatedAt = DateTime.Now
+                };
+
+                _db.Lines.Add(line);
+                await _db.SaveChangesAsync();
+
+                result.SuccessfulLines.Add(line);
+                result.TotalProcessed = 1;
+            }
+            catch (Exception ex)
+            {
+                result.Errors.Add($"خطأ في استيراد بيانات QR: {ex.Message}");
             }
 
             return result;

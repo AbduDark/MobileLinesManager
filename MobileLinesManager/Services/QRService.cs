@@ -13,11 +13,8 @@ namespace MobileLinesManager.Services
 {
     public class QRService : IQRService
     {
-        private readonly IImportService _importService;
-
-        public QRService(IImportService importService)
+        public QRService()
         {
-            _importService = importService;
         }
 
         public async Task<Line> ScanFromWebcamAsync()
@@ -62,10 +59,63 @@ namespace MobileLinesManager.Services
             });
         }
 
+        public async Task<string> ScanQRFromFileAsync(string imagePath)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var barcodeReader = new BarcodeReader
+                    {
+                        AutoRotate = true,
+                        TryInverted = true,
+                        Options = new DecodingOptions
+                        {
+                            TryHarder = true,
+                            PossibleFormats = new[] { BarcodeFormat.QR_CODE }
+                        }
+                    };
+
+                    using var bitmap = (Bitmap)Image.FromFile(imagePath);
+                    var result = barcodeReader.Decode(bitmap);
+
+                    return result?.Text;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            });
+        }
+
         public Line ParseQrData(string qrData)
         {
-            var importResult = _importService.ParseQrPayload(qrData);
-            return importResult.SuccessfulLines.FirstOrDefault();
+            try
+            {
+                // Expected format: PhoneNumber|SerialNumber|CategoryId|WalletId
+                var parts = qrData.Split('|');
+
+                if (parts.Length < 1)
+                {
+                    return null;
+                }
+
+                var line = new Line
+                {
+                    PhoneNumber = parts[0],
+                    SerialNumber = parts.Length > 1 ? parts[1] : null,
+                    CategoryId = parts.Length > 2 && int.TryParse(parts[2], out var catId) ? catId : 0,
+                    WalletId = parts.Length > 3 ? parts[3] : null,
+                    Status = "Available",
+                    CreatedAt = DateTime.Now
+                };
+
+                return line;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public byte[] GenerateQrCode(Line line)

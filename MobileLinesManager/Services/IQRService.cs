@@ -8,6 +8,7 @@ namespace MobileLinesManager.Services
     {
         Task<Line> ScanFromWebcamAsync();
         Task<Line> ScanFromImageAsync(string imagePath);
+        Task<string> ScanQRFromFileAsync(string imagePath);
         Line ParseQrData(string qrData);
         byte[] GenerateQrCode(Line line);
     }
