@@ -1,0 +1,20 @@
+Severity	Code	Description	Project	File	Line	Suppression State
+Error	XDG0008	The name "ReportsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	21	
+Error (active)	MC3045	Unknown property 'Categories.Sum(c' for type 'System.Windows.Data.Binding' encountered while parsing a Markup Extension. Line 87 Position 43.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	87	
+Error	XDG-0001	The resource "HexToBrushConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	65	
+Error	XDG0006	'(' is an unexpected token. The expected token is '='. Line 16, position 55.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	64	
+Error	XDG0008	The name "MainViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	20	
+Error	XDG0008	The name "DashboardView" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	24	
+Error	XDG0008	The name "LinesView" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	25	
+Error	XDG0008	The name "AssignmentsView" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	26	
+Error	XDG0008	The name "CategoriesView" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	27	
+Error	XDG0008	The name "ReportsView" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	28	
+Error	XDG0008	The name "AuditTrailViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	30	
+Error	XDG0008	The name "AuditTrailView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	31	
+Error	XDG0008	The name "SettingsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	33	
+Error	XDG0008	The name "SettingsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	34	
+Error	XDG0008	The name "ViewToVisibilityConverter" does not exist in the namespace "clr-namespace:MobileLinesManager".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	37	
+Error	XDG0008	Categories is not supported in a Windows Presentation Foundation (WPF) project.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	2	
+Error	XDG0008	0 is not supported in a Windows Presentation Foundation (WPF) project.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	87	
+Error	XLS0112	Expected '}'.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Views\DashboardView.xaml	87	
+Error	XLS0112	Expected '
