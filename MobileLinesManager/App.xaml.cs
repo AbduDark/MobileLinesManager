@@ -40,10 +40,10 @@ namespace MobileLinesManager
 
             // Services
             services.AddSingleton<IAlertService, AlertService>();
-            services.AddTransient<IImportService, ImportService>();
-            services.AddTransient<IReportService, ReportService>();
-            services.AddTransient<IQRService, QRService>();
-            services.AddTransient<IBackupService, BackupService>();
+            services.AddScoped<IImportService, ImportService>();
+            services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IQRService, QRService>();
+            services.AddSingleton<IBackupService, BackupService>();
 
             // Windows
             services.AddTransient<MainWindow>();
