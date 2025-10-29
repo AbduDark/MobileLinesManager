@@ -9,5 +9,5 @@
     <conv:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
     <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
     <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    <local:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
+    <conv:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
 </ResourceDictionary>
