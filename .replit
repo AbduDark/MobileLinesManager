@@ -1,6 +1,29 @@
-modules = ["dotnet-7.0"]
+modules = ["dotnet-7.0", "dotnet-9.0"]
 [agent]
 expertMode = true
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "validate-build"
+
+[[workflows.workflow]]
+name = "validate-build"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd MobileLinesManager && dotnet build"
+
+[workflows.workflow.metadata]
+outputType = "console"
