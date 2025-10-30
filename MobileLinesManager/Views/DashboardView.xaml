@@ -8,9 +8,10 @@
              d:DesignHeight="450" d:DesignWidth="800"
              FlowDirection="RightToLeft">
 
+ 
     <UserControl.Resources>
         <!-- تحويل اللون الهكس إلى فرشة -->
-        <conv:HexToBrushConverter x:Key="HexToBrushConverter"/>
+        <convv:HexToBrushConverter x:Key="HexToBrushConverter"/>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -71,7 +72,7 @@
             <ItemsControl ItemsSource="{Binding Operators}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{Binding ColorHex, Converter={StaticResource HexToBrushConverter}}" 
+                        <Border Background="{Binding ColorHex, convv={StaticResource HexToBrushConverter}}" 
                                 CornerRadius="8" 
                                 Margin="5" 
                                 Padding="15">

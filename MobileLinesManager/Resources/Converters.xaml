@@ -1,13 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="clr-namespace:MobileLinesManager.Converters">
+                    xmlns:convv="clr-namespace:MobileLinesManager.Converters">
 
-    <converters:HexToBrushConverter x:Key="HexToBrushConverter"/>
-    <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    <converters:BoolToTextConverter x:Key="BoolToTextConverter"/>
-    <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
-    <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
-    <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-    <converters:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
+    <convv:HexToBrushConverter x:Key="HexToBrushConverter"/>
+    <convv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    <convv:BoolToTextConverter x:Key="BoolToTextConverter"/>
+    <convv:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
+    <convv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    <convv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    <convv:ViewToVisibilityConverter x:Key="ViewToVisibilityConverter"/>
 
 </ResourceDictionary>
