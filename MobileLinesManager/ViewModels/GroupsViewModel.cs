@@ -14,7 +14,7 @@ namespace MobileLinesManager.ViewModels
     public class GroupsViewModel : ViewModelBase
     {
         private readonly AppDbContext _db;
-        
+
         private ObservableCollection<Group> _groups;
         private ObservableCollection<Operator> _operators;
         private Group _selectedGroup;
@@ -36,20 +36,22 @@ namespace MobileLinesManager.ViewModels
         public GroupsViewModel(AppDbContext db)
         {
             _db = db;
-            
+
             Groups = new ObservableCollection<Group>();
             Operators = new ObservableCollection<Operator>();
-            
+
             LoadDataCommand = new AsyncRelayCommand(async _ => await LoadDataAsync());
-            AddGroupCommand = new RelayCommand(_ => PrepareNewGroup(), _ => CanAddGroup());
-            EditGroupCommand = new RelayCommand(_ => EditGroup(), _ => SelectedGroup != null);
-            DeleteGroupCommand = new AsyncRelayCommand(async _ => await DeleteGroupAsync(), _ => SelectedGroup != null && !SelectedGroup.Lines.Any());
-            SaveGroupCommand = new AsyncRelayCommand(async _ => await SaveGroupAsync(), _ => IsEditing && CanSaveGroup());
+            AddGroupCommand = new AsyncRelayCommand(async _ => await AddGroupAsync(), _ => CanAddGroup());
+            EditGroupCommand = new RelayCommand(EditGroup, _ => SelectedGroup != null);
+            DeleteGroupCommand = new AsyncRelayCommand(async _ => await DeleteGroupAsync(), _ => SelectedGroup != null);
+            SaveGroupCommand = new AsyncRelayCommand(async _ => await SaveGroupAsync(), _ => IsEditing);
             CancelEditCommand = new RelayCommand(_ => CancelEdit(), _ => IsEditing);
             RenewValidityCommand = new AsyncRelayCommand(async _ => await RenewValidityAsync(), _ => SelectedGroup != null && SelectedGroup.HasCashWallet);
             ViewGroupLinesCommand = new RelayCommand(_ => ViewGroupLines(), _ => SelectedGroup != null);
-            
-            LoadDataAsync().ConfigureAwait(false);
+            SearchCommand = new AsyncRelayCommand(async _ => await SearchGroupsAsync());
+            ClearSearchCommand = new RelayCommand(_ => ClearSearch());
+
+            _ = LoadDataAsync();
         }
 
         #region Properties
@@ -180,6 +182,9 @@ namespace MobileLinesManager.ViewModels
         public ICommand CancelEditCommand { get; }
         public ICommand RenewValidityCommand { get; }
         public ICommand ViewGroupLinesCommand { get; }
+        public ICommand SearchCommand { get; }
+        public ICommand ClearSearchCommand { get; }
+
 
         #endregion
 
@@ -224,7 +229,7 @@ namespace MobileLinesManager.ViewModels
                 }
 
                 var groups = await query.OrderBy(g => g.Name).ToListAsync();
-                
+
                 Groups.Clear();
                 foreach (var group in groups)
                 {
@@ -239,42 +244,34 @@ namespace MobileLinesManager.ViewModels
 
         private bool CanAddGroup()
         {
-            return !IsEditing && Operators.Any();
+            return !string.IsNullOrWhiteSpace(GroupName) &&
+                   SelectedOperatorId.HasValue &&
+                   Groups.Count == 0 || !Groups.Any(g => g.Name == GroupName && g.OperatorId == SelectedOperatorId);
         }
 
         private void PrepareNewGroup()
         {
-            SelectedGroup = null;
-            GroupName = string.Empty;
-            SelectedOperatorId = Operators.FirstOrDefault()?.Id;
-            SelectedGroupType = GroupType.WithoutCashWallet;
-            SelectedGroupStatus = GroupStatus.Active;
-            MaxLinesCount = 50;
-            ValidityDays = 60;
-            AlertDaysBeforeExpiry = 7;
-            DeliveredToClientName = string.Empty;
-            DeliveryDate = null;
-            ExpectedReturnDate = null;
-            GroupNotes = string.Empty;
+            ClearForm();
             IsEditing = true;
         }
 
-        private void EditGroup()
+        private void EditGroup(object? parameter)
         {
-            if (SelectedGroup == null) return;
-
-            GroupName = SelectedGroup.Name;
-            SelectedOperatorId = SelectedGroup.OperatorId;
-            SelectedGroupType = SelectedGroup.Type;
-            SelectedGroupStatus = SelectedGroup.Status;
-            MaxLinesCount = SelectedGroup.MaxLinesCount;
-            ValidityDays = SelectedGroup.ValidityDays ?? 60;
-            AlertDaysBeforeExpiry = SelectedGroup.AlertDaysBeforeExpiry;
-            DeliveredToClientName = SelectedGroup.DeliveredToClientName;
-            DeliveryDate = SelectedGroup.DeliveryDate;
-            ExpectedReturnDate = SelectedGroup.ExpectedReturnDate;
-            GroupNotes = SelectedGroup.Notes;
-            IsEditing = true;
+            if (SelectedGroup != null)
+            {
+                SelectedOperatorId = SelectedGroup.OperatorId;
+                GroupName = SelectedGroup.Name;
+                SelectedGroupType = SelectedGroup.GroupType;
+                SelectedGroupStatus = SelectedGroup.Status;
+                MaxLinesCount = SelectedGroup.MaxLinesCount;
+                ValidityDays = SelectedGroup.ValidityDays;
+                AlertDaysBeforeExpiry = SelectedGroup.AlertDaysBeforeExpiry;
+                DeliveredToClientName = SelectedGroup.DeliveredToClientName ?? string.Empty;
+                DeliveryDate = SelectedGroup.DeliveryDate;
+                ExpectedReturnDate = SelectedGroup.ExpectedReturnDate;
+                GroupNotes = SelectedGroup.Notes ?? string.Empty;
+                IsEditing = true;
+            }
         }
 
         private async Task DeleteGroupAsync()
@@ -288,17 +285,17 @@ namespace MobileLinesManager.ViewModels
             }
 
             var result = MessageBox.Show($"هل أنت متأكد من حذف المجموعة '{SelectedGroup.Name}'؟", "تأكيد الحذف", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            
+
             if (result == MessageBoxResult.Yes)
             {
                 try
                 {
                     _db.Groups.Remove(SelectedGroup);
                     await _db.SaveChangesAsync();
-                    
+
                     Groups.Remove(SelectedGroup);
                     SelectedGroup = null;
-                    
+
                     MessageBox.Show("تم حذف المجموعة بنجاح", "نجح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -333,16 +330,16 @@ namespace MobileLinesManager.ViewModels
                 }
 
                 groupToSave.Name = GroupName;
-                groupToSave.OperatorId = SelectedOperatorId.Value;
+                groupToSave.OperatorId = SelectedOperatorId!.Value;
                 groupToSave.Type = SelectedGroupType;
                 groupToSave.Status = SelectedGroupStatus;
                 groupToSave.MaxLinesCount = MaxLinesCount;
                 groupToSave.ValidityDays = ValidityDays;
                 groupToSave.AlertDaysBeforeExpiry = AlertDaysBeforeExpiry;
-                groupToSave.DeliveredToClientName = DeliveredToClientName;
+                groupToSave.DeliveredToClientName = string.IsNullOrWhiteSpace(DeliveredToClientName) ? null : DeliveredToClientName;
                 groupToSave.DeliveryDate = DeliveryDate;
                 groupToSave.ExpectedReturnDate = ExpectedReturnDate;
-                groupToSave.Notes = GroupNotes;
+                groupToSave.Notes = string.IsNullOrWhiteSpace(GroupNotes) ? null : GroupNotes;
 
                 // إذا كانت مجموعة بمحافظ كاش، نحدد تاريخ الصلاحية
                 if (SelectedGroupType == GroupType.WithCashWallet && isNew)
@@ -361,12 +358,12 @@ namespace MobileLinesManager.ViewModels
                 }
 
                 await _db.SaveChangesAsync();
-                
+
                 IsEditing = false;
                 await FilterGroups();
-                
+
                 SelectedGroup = Groups.FirstOrDefault(g => g.Id == groupToSave.Id);
-                
+
                 MessageBox.Show(isNew ? "تم إضافة المجموعة بنجاح" : "تم تحديث المجموعة بنجاح", "نجح", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -378,17 +375,7 @@ namespace MobileLinesManager.ViewModels
         private void CancelEdit()
         {
             IsEditing = false;
-            GroupName = string.Empty;
-            SelectedOperatorId = null;
-            SelectedGroupType = GroupType.WithoutCashWallet;
-            SelectedGroupStatus = GroupStatus.Active;
-            MaxLinesCount = 50;
-            ValidityDays = 60;
-            AlertDaysBeforeExpiry = 7;
-            DeliveredToClientName = string.Empty;
-            DeliveryDate = null;
-            ExpectedReturnDate = null;
-            GroupNotes = string.Empty;
+            ClearForm();
         }
 
         private async Task RenewValidityAsync()
@@ -396,7 +383,7 @@ namespace MobileLinesManager.ViewModels
             if (SelectedGroup == null || !SelectedGroup.HasCashWallet) return;
 
             var result = MessageBox.Show($"هل تريد تجديد صلاحية المجموعة '{SelectedGroup.Name}' لمدة {SelectedGroup.ValidityDays ?? 60} يوم من اليوم؟", "تجديد الصلاحية", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            
+
             if (result == MessageBoxResult.Yes)
             {
                 try
@@ -404,11 +391,11 @@ namespace MobileLinesManager.ViewModels
                     SelectedGroup.ValidityDate = DateTime.Now.AddDays(SelectedGroup.ValidityDays ?? 60);
                     SelectedGroup.LastRenewalDate = DateTime.Now;
                     SelectedGroup.UpdatedAt = DateTime.Now;
-                    
+
                     await _db.SaveChangesAsync();
-                    
+
                     await FilterGroups();
-                    
+
                     MessageBox.Show($"تم تجديد الصلاحية بنجاح. التاريخ الجديد: {SelectedGroup.ValidityDate:yyyy-MM-dd}", "نجح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -421,9 +408,52 @@ namespace MobileLinesManager.ViewModels
         private void ViewGroupLines()
         {
             if (SelectedGroup == null) return;
-            
+
             // سيتم ربط هذا بالتنقل إلى شاشة الخطوط
             MessageBox.Show($"سيتم فتح شاشة الخطوط للمجموعة: {SelectedGroup.Name}", "معلومات", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private async Task AddGroupAsync()
+        {
+            // This method is a placeholder for future implementation if needed.
+            // The logic for adding a group is handled by PrepareNewGroup and SaveGroupAsync.
+            await Task.CompletedTask;
+        }
+
+        private async Task SearchGroupsAsync()
+        {
+            await FilterGroups();
+        }
+
+        private void ClearSearch()
+        {
+            SearchText = string.Empty;
+            FilterOperatorId = null;
+            _ = SearchGroupsAsync();
+        }
+
+        private bool CanDeleteGroup()
+        {
+            if (SelectedGroup == null) return false;
+
+            var hasLines = _db.Lines.Count(l => l.GroupId == SelectedGroup.Id) > 0;
+            return !hasLines;
+        }
+
+        private void ClearForm()
+        {
+            GroupName = string.Empty;
+            SelectedOperatorId = null;
+            SelectedGroupType = GroupType.WithoutCashWallet;
+            SelectedGroupStatus = GroupStatus.Active;
+            MaxLinesCount = 50;
+            ValidityDays = 60;
+            AlertDaysBeforeExpiry = 7;
+            DeliveredToClientName = string.Empty;
+            DeliveryDate = null;
+            ExpectedReturnDate = null;
+            GroupNotes = string.Empty;
+            SelectedGroup = null;
         }
 
         #endregion
