@@ -219,4 +219,142 @@
         </Style.Triggers>
     </Style>
     
+    <!-- Operator Colors -->
+    <SolidColorBrush x:Key="VodafoneBrush" Color="#E60000"/>
+    <SolidColorBrush x:Key="EtisalatBrush" Color="#008000"/>
+    <SolidColorBrush x:Key="WEBrush" Color="#8B008B"/>
+    <SolidColorBrush x:Key="OrangeBrush" Color="#FF8C00"/>
+    
+    <!-- Operator Button Styles -->
+    <Style x:Key="VodafoneButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+        <Setter Property="Background" Value="{StaticResource VodafoneBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#C50000"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#A50000"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="EtisalatButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+        <Setter Property="Background" Value="{StaticResource EtisalatBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#006600"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#004400"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="WEButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+        <Setter Property="Background" Value="{StaticResource WEBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#6A006A"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#4A004A"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="OrangeButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+        <Setter Property="Background" Value="{StaticResource OrangeBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#D67300"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="#B35F00"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <!-- Operator Card Styles -->
+    <Style x:Key="VodafoneCard" TargetType="Border" BasedOn="{StaticResource ModernCard}">
+        <Setter Property="BorderBrush" Value="{StaticResource VodafoneBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    
+    <Style x:Key="EtisalatCard" TargetType="Border" BasedOn="{StaticResource ModernCard}">
+        <Setter Property="BorderBrush" Value="{StaticResource EtisalatBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    
+    <Style x:Key="WECard" TargetType="Border" BasedOn="{StaticResource ModernCard}">
+        <Setter Property="BorderBrush" Value="{StaticResource WEBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    
+    <Style x:Key="OrangeCard" TargetType="Border" BasedOn="{StaticResource ModernCard}">
+        <Setter Property="BorderBrush" Value="{StaticResource OrangeBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+    </Style>
+    
+    <!-- Operator Icon Button (for main screen) -->
+    <Style x:Key="OperatorIconButton" TargetType="Button">
+        <Setter Property="Width" Value="200"/>
+        <Setter Property="Height" Value="200"/>
+        <Setter Property="Margin" Value="20"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="20"
+                            BorderThickness="3"
+                            BorderBrush="White">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#60000000" 
+                                            BlurRadius="20" 
+                                            ShadowDepth="5" 
+                                            Opacity="0.5"/>
+                        </Border.Effect>
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="ScaleTransform" ScaleX="1" ScaleY="1"/>
+                        </Border.RenderTransform>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ScaleTransform" 
+                                                   Storyboard.TargetProperty="ScaleX" 
+                                                   To="1.1" Duration="0:0:0.3"/>
+                                    <DoubleAnimation Storyboard.TargetName="ScaleTransform" 
+                                                   Storyboard.TargetProperty="ScaleY" 
+                                                   To="1.1" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="ScaleTransform" 
+                                                   Storyboard.TargetProperty="ScaleX" 
+                                                   To="1" Duration="0:0:0.3"/>
+                                    <DoubleAnimation Storyboard.TargetName="ScaleTransform" 
+                                                   Storyboard.TargetProperty="ScaleY" 
+                                                   To="1" Duration="0:0:0.3"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
 </ResourceDictionary>

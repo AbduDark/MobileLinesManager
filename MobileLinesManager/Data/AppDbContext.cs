@@ -10,6 +10,7 @@ namespace MobileLinesManager.Data
     public class AppDbContext : DbContext
     {
         public DbSet<Operator> Operators { get; set; }
+        public DbSet<Group> Groups { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Line> Lines { get; set; }
@@ -50,7 +51,7 @@ namespace MobileLinesManager.Data
                 .IsUnique();
 
             modelBuilder.Entity<Line>()
-                .HasIndex(l => l.CategoryId);
+                .HasIndex(l => l.GroupId);
 
             modelBuilder.Entity<Line>()
                 .HasIndex(l => l.AssignedToId);
@@ -58,10 +59,28 @@ namespace MobileLinesManager.Data
             modelBuilder.Entity<Line>()
                 .HasIndex(l => l.ExpectedReturnDate);
 
+            modelBuilder.Entity<Line>()
+                .HasIndex(l => l.NationalId);
+
+            modelBuilder.Entity<Group>()
+                .HasIndex(g => g.OperatorId);
+
+            modelBuilder.Entity<Group>()
+                .HasIndex(g => g.ValidityDate);
+
+            modelBuilder.Entity<Group>()
+                .HasIndex(g => g.ExpectedReturnDate);
+
             modelBuilder.Entity<AssignmentLog>()
                 .HasIndex(al => al.AssignedAt);
 
             // Configure relationships
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.Operator)
+                .WithMany()
+                .HasForeignKey(g => g.OperatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Category>()
                 .HasOne(c => c.Operator)
                 .WithMany(o => o.Categories)
@@ -69,9 +88,9 @@ namespace MobileLinesManager.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Line>()
-                .HasOne(l => l.Category)
-                .WithMany(c => c.Lines)
-                .HasForeignKey(l => l.CategoryId)
+                .HasOne(l => l.Group)
+                .WithMany(g => g.Lines)
+                .HasForeignKey(l => l.GroupId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Line>()
@@ -94,10 +113,10 @@ namespace MobileLinesManager.Data
 
             // Seed operators
             modelBuilder.Entity<Operator>().HasData(
-                new Operator { Id = 1, Name = "اتصالات", ColorHex = "#008000", IconPath = null },
-                new Operator { Id = 2, Name = "فودافون", ColorHex = "#FF0000", IconPath = null },
-                new Operator { Id = 3, Name = "وي", ColorHex = "#800080", IconPath = null },
-                new Operator { Id = 4, Name = "أورانج", ColorHex = "#FFA500", IconPath = null }
+                new Operator { Id = 1, Name = "اتصالات", ColorHex = "#008000", IconPath = "Resources/Images/etisalat_logo.png" },
+                new Operator { Id = 2, Name = "فودافون", ColorHex = "#E60000", IconPath = "Resources/Images/vodafone_logo.png" },
+                new Operator { Id = 3, Name = "وي", ColorHex = "#8B008B", IconPath = "Resources/Images/we_logo.png" },
+                new Operator { Id = 4, Name = "أورانج", ColorHex = "#FF8C00", IconPath = "Resources/Images/orange_logo.png" }
             );
 
             // Seed default admin user

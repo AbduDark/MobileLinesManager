@@ -108,11 +108,83 @@ namespace MobileLinesManager.Services
             return items;
         }
 
+        public async Task<List<AlertItem>> CheckGroupValidityAlertsAsync()
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            
+            var items = new List<AlertItem>();
+            var groupsWithCashWallet = await db.Groups
+                .Include(g => g.Operator)
+                .Where(g => g.Type == GroupType.WithCashWallet && g.ValidityDate.HasValue)
+                .ToListAsync();
+
+            foreach (var group in groupsWithCashWallet)
+            {
+                var daysUntilExpiry = (group.ValidityDate.Value - DateTime.Today).TotalDays;
+
+                if (daysUntilExpiry <= group.AlertDaysBeforeExpiry && daysUntilExpiry >= 0)
+                {
+                    items.Add(new AlertItem
+                    {
+                        Line = null,
+                        Message = $"مجموعة '{group.Name}' ({group.Operator.Name}) صلاحيتها تنتهي في {group.ValidityDate.Value:yyyy-MM-dd} (بعد {(int)daysUntilExpiry} يوم)",
+                        AlertType = "GroupValidityExpiring"
+                    });
+                }
+                else if (daysUntilExpiry < 0)
+                {
+                    items.Add(new AlertItem
+                    {
+                        Line = null,
+                        Message = $"مجموعة '{group.Name}' ({group.Operator.Name}) منتهية الصلاحية منذ {group.ValidityDate.Value:yyyy-MM-dd}",
+                        AlertType = "GroupValidityExpired"
+                    });
+                }
+            }
+
+            return items;
+        }
+
+        public async Task<List<AlertItem>> CheckGroupDeliveryAlertsAsync()
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            
+            var items = new List<AlertItem>();
+            var overdueGroups = await db.Groups
+                .Include(g => g.Operator)
+                .Where(g => g.Status == GroupStatus.DeliveredToClient 
+                    && g.ExpectedReturnDate.HasValue 
+                    && g.ExpectedReturnDate.Value < DateTime.Today)
+                .ToListAsync();
+
+            foreach (var group in overdueGroups)
+            {
+                var daysOverdue = (DateTime.Today - group.ExpectedReturnDate.Value).Days;
+                items.Add(new AlertItem
+                {
+                    Line = null,
+                    Message = $"مجموعة '{group.Name}' ({group.Operator.Name}) مسلمة للعميل '{group.DeliveredToClientName}' ولم تستلم بعد. متأخرة {daysOverdue} يوم عن الموعد المحدد {group.ExpectedReturnDate.Value:yyyy-MM-dd}",
+                    AlertType = "GroupNotReturned"
+                });
+            }
+
+            return items;
+        }
+
         public async Task<List<AlertItem>> CheckAllAlertsAsync()
         {
             var expiryAlerts = await CheckExpiryAlertsAsync();
             var overdueAlerts = await CheckOverdueAssignmentsAsync();
-            return expiryAlerts.Concat(overdueAlerts).ToList();
+            var groupValidityAlerts = await CheckGroupValidityAlertsAsync();
+            var groupDeliveryAlerts = await CheckGroupDeliveryAlertsAsync();
+            
+            return expiryAlerts
+                .Concat(overdueAlerts)
+                .Concat(groupValidityAlerts)
+                .Concat(groupDeliveryAlerts)
+                .ToList();
         }
 
         public void StartPeriodicCheck(int intervalMinutes = 30)

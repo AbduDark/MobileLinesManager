@@ -9,6 +9,8 @@ namespace MobileLinesManager.Services
     {
         Task<List<AlertItem>> CheckExpiryAlertsAsync();
         Task<List<AlertItem>> CheckOverdueAssignmentsAsync();
+        Task<List<AlertItem>> CheckGroupValidityAlertsAsync();
+        Task<List<AlertItem>> CheckGroupDeliveryAlertsAsync();
         Task<List<AlertItem>> CheckAllAlertsAsync();
         void StartPeriodicCheck(int intervalMinutes = 30);
         void StopPeriodicCheck();
