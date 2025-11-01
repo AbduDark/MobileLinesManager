@@ -42,7 +42,7 @@
                     BorderBrush="#FFB900" 
                     BorderThickness="2"
                     Margin="0,20,0,20"
-                    Visibility="{Binding HasAlerts, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Visibility="{Binding HasAlerts, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                         <TextBlock Text="⚠️" FontSize="24" Margin="0,0,10,0"/>
