@@ -35,13 +35,16 @@ namespace MobileLinesManager.ViewModels
         {
             _db = db;
             _alertService = alertService;
-            
+
             Operators = new ObservableCollection<Operator>();
-            
+
             NavigateCommand = new RelayCommand(Navigate);
             RefreshDashboardCommand = new AsyncRelayCommand(async _ => await LoadDashboardDataAsync());
             NavigateToOperatorGroupsCommand = new RelayCommand(NavigateToOperatorGroups);
-            
+            NavigateToDashboardCommand = new RelayCommand(_ => CurrentView = "Dashboard");
+            NavigateToLinesCommand = new RelayCommand(_ => CurrentView = "Lines");
+            NavigateToAssignmentsCommand = new RelayCommand(_ => CurrentView = "Assignments");
+
             LoadDashboardDataAsync().ConfigureAwait(false);
             _alertService.StartPeriodicCheck(30);
         }
@@ -97,6 +100,9 @@ namespace MobileLinesManager.ViewModels
         public ICommand NavigateCommand { get; }
         public ICommand RefreshDashboardCommand { get; }
         public ICommand NavigateToOperatorGroupsCommand { get; }
+        public ICommand NavigateToDashboardCommand { get; }
+        public ICommand NavigateToLinesCommand { get; }
+        public ICommand NavigateToAssignmentsCommand { get; }
 
         private void Navigate(object parameter)
         {
@@ -122,7 +128,7 @@ namespace MobileLinesManager.ViewModels
             TotalLines = await _db.Lines.CountAsync();
             AssignedLines = await _db.Lines.CountAsync(l => l.Status == "Assigned");
             AvailableLines = await _db.Lines.CountAsync(l => l.Status == "Available");
-            
+
             var alerts = await _alertService.CheckAllAlertsAsync();
             AlertCount = alerts.Count;
 

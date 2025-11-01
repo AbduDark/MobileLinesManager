@@ -11,7 +11,6 @@ namespace MobileLinesManager.Data
     {
         public DbSet<Operator> Operators { get; set; }
         public DbSet<Group> Groups { get; set; }
-        public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Line> Lines { get; set; }
         public DbSet<AssignmentLog> AssignmentLogs { get; set; }
@@ -81,12 +80,6 @@ namespace MobileLinesManager.Data
                 .HasForeignKey(g => g.OperatorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Category>()
-                .HasOne(c => c.Operator)
-                .WithMany(o => o.Categories)
-                .HasForeignKey(c => c.OperatorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<Line>()
                 .HasOne(l => l.Group)
                 .WithMany(g => g.Lines)
@@ -104,12 +97,6 @@ namespace MobileLinesManager.Data
                 .WithMany()
                 .HasForeignKey(al => al.LineId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<AlertRule>()
-                .HasOne(ar => ar.Category)
-                .WithMany()
-                .HasForeignKey(ar => ar.CategoryId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed operators
             modelBuilder.Entity<Operator>().HasData(

@@ -21,7 +21,7 @@
                 <ResourceDictionary Source="Resources/Converters.xaml"/>
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <!-- ViewModels -->
             <vm:MainViewModel x:Key="MainVM"/>
             <viewmodels:ReportsViewModel x:Key="ReportsVM"/>
@@ -31,7 +31,6 @@
             <views:LinesView x:Key="LinesView"/>
             <views:GroupsView x:Key="GroupsView"/>
             <views:AssignmentsView x:Key="AssignmentsView"/>
-            <views:CategoriesView x:Key="CategoriesView"/>
             <views:ReportsView x:Key="ReportsView" DataContext="{Binding Source={StaticResource ReportsVM}}"/>
 
             <viewmodels:AuditTrailViewModel x:Key="AuditTrailVM"/>
@@ -60,7 +59,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                </Grid.Columns>
 
                 <TextBlock Text="إدارة خطوط الموبايل" 
                           FontSize="24" 
@@ -176,8 +175,6 @@
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Groups}"/>
             <ContentPresenter Content="{StaticResource AssignmentsView}"
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Assignments}"/>
-            <ContentPresenter Content="{StaticResource CategoriesView}"
-                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Categories}"/>
             <ContentPresenter Content="{StaticResource ReportsView}"
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Reports}"/>
             <ContentPresenter Content="{StaticResource AuditTrailView}"
