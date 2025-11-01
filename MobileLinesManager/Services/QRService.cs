@@ -40,12 +40,6 @@ namespace MobileLinesManager.Services
                             PossibleFormats = new[] { BarcodeFormat.QR_CODE }
                         }
                     };
-                    var hints = new Dictionary<DecodeHintType, object>
-                    {
-                        [DecodeHintType.TRY_HARDER] = true,
-                        [DecodeHintType.PURE_BARCODE] = false
-                    };
-                    barcodeReader.Options.Hints = hints;
 
                     using var bitmap = (Bitmap)Image.FromFile(imagePath);
                     var result = barcodeReader.Decode(bitmap);
@@ -80,11 +74,6 @@ namespace MobileLinesManager.Services
                             PossibleFormats = new[] { BarcodeFormat.QR_CODE }
                         }
                     };
-                    var hints = new Dictionary<DecodeHintType, object>
-                    {
-                        [DecodeHintType.TRY_HARDER] = true
-                    };
-                    barcodeReader.Options.Hints = hints;
 
                     using var bitmap = (Bitmap)Image.FromFile(imagePath);
                     var result = barcodeReader.Decode(bitmap);
@@ -144,15 +133,9 @@ namespace MobileLinesManager.Services
                     {
                         Width = 300,
                         Height = 300,
-                        Margin = 1
+                        Margin = 2
                     }
                 };
-                var hints = new Dictionary<EncodeHintType, object>
-                {
-                    [EncodeHintType.ERROR_CORRECTION] = ErrorCorrectionLevel.H,
-                    [EncodeHintType.MARGIN] = 2
-                };
-                writer.Options.Hints = hints;
 
                 using var bitmap = writer.Write(payload);
                 using var ms = new MemoryStream();

@@ -261,10 +261,10 @@ namespace MobileLinesManager.ViewModels
             {
                 SelectedOperatorId = SelectedGroup.OperatorId;
                 GroupName = SelectedGroup.Name;
-                SelectedGroupType = SelectedGroup.GroupType;
+                SelectedGroupType = SelectedGroup.Type;
                 SelectedGroupStatus = SelectedGroup.Status;
                 MaxLinesCount = SelectedGroup.MaxLinesCount;
-                ValidityDays = SelectedGroup.ValidityDays;
+                ValidityDays = SelectedGroup.ValidityDays ?? 60;
                 AlertDaysBeforeExpiry = SelectedGroup.AlertDaysBeforeExpiry;
                 DeliveredToClientName = SelectedGroup.DeliveredToClientName ?? string.Empty;
                 DeliveryDate = SelectedGroup.DeliveryDate;
