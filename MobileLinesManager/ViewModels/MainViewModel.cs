@@ -24,6 +24,12 @@ namespace MobileLinesManager.ViewModels
         private int _alertCount;
         private int? _selectedOperatorId;
         private ObservableCollection<Operator> _operators;
+        private int _vodafoneGroupsCount;
+        private int _etisalatGroupsCount;
+        private int _weGroupsCount;
+        private int _orangeGroupsCount;
+        private bool _hasAlerts;
+        private ObservableCollection<AlertItem> _recentAlerts;
 
         public MainViewModel() : this(
             ServiceLocator.ServiceProvider?.GetService<AppDbContext>() ?? new AppDbContext(),
@@ -37,6 +43,7 @@ namespace MobileLinesManager.ViewModels
             _alertService = alertService;
 
             Operators = new ObservableCollection<Operator>();
+            RecentAlerts = new ObservableCollection<AlertItem>();
 
             NavigateCommand = new RelayCommand(Navigate);
             RefreshDashboardCommand = new AsyncRelayCommand(async _ => await LoadDashboardDataAsync());
@@ -97,6 +104,42 @@ namespace MobileLinesManager.ViewModels
             set => SetProperty(ref _operators, value);
         }
 
+        public int VodafoneGroupsCount
+        {
+            get => _vodafoneGroupsCount;
+            set => SetProperty(ref _vodafoneGroupsCount, value);
+        }
+
+        public int EtisalatGroupsCount
+        {
+            get => _etisalatGroupsCount;
+            set => SetProperty(ref _etisalatGroupsCount, value);
+        }
+
+        public int WEGroupsCount
+        {
+            get => _weGroupsCount;
+            set => SetProperty(ref _weGroupsCount, value);
+        }
+
+        public int OrangeGroupsCount
+        {
+            get => _orangeGroupsCount;
+            set => SetProperty(ref _orangeGroupsCount, value);
+        }
+
+        public bool HasAlerts
+        {
+            get => _hasAlerts;
+            set => SetProperty(ref _hasAlerts, value);
+        }
+
+        public ObservableCollection<AlertItem> RecentAlerts
+        {
+            get => _recentAlerts;
+            set => SetProperty(ref _recentAlerts, value);
+        }
+
         public ICommand NavigateCommand { get; }
         public ICommand RefreshDashboardCommand { get; }
         public ICommand NavigateToOperatorGroupsCommand { get; }
@@ -126,11 +169,24 @@ namespace MobileLinesManager.ViewModels
         {
             TotalGroups = await _db.Groups.CountAsync();
             TotalLines = await _db.Lines.CountAsync();
-            AssignedLines = await _db.Lines.CountAsync(l => l.Status == "Assigned");
-            AvailableLines = await _db.Lines.CountAsync(l => l.Status == "Available");
+            AssignedLines = await _db.Lines.CountAsync(l => l.AssignedToId != null);
+            AvailableLines = await _db.Lines.CountAsync(l => l.AssignedToId == null);
+
+            // Load groups count per operator
+            VodafoneGroupsCount = await _db.Groups.CountAsync(g => g.OperatorId == 2);
+            EtisalatGroupsCount = await _db.Groups.CountAsync(g => g.OperatorId == 1);
+            WEGroupsCount = await _db.Groups.CountAsync(g => g.OperatorId == 3);
+            OrangeGroupsCount = await _db.Groups.CountAsync(g => g.OperatorId == 4);
 
             var alerts = await _alertService.CheckAllAlertsAsync();
             AlertCount = alerts.Count;
+            HasAlerts = alerts.Count > 0;
+
+            RecentAlerts.Clear();
+            foreach (var alert in alerts.Take(5))
+            {
+                RecentAlerts.Add(alert);
+            }
 
             var operators = await _db.Operators.ToListAsync();
             Operators.Clear();
