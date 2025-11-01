@@ -14,8 +14,8 @@ namespace MobileLinesManager.Models
         public bool Enabled { get; set; } = true;
         
         [Required]
-        public string AlertType { get; set; } // Expiry, AssignmentDue, NotReturned
+        public string AlertType { get; set; } = "Expiry"; // Expiry, AssignmentDue, NotReturned
         
-        public virtual Category Category { get; set; }
+        public virtual Category? Category { get; set; }
     }
 }

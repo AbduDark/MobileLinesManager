@@ -10,11 +10,11 @@ namespace MobileLinesManager.Models
         [Required]
         public int CategoryId { get; set; }
 
-        public string PhoneNumber { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
 
-        public string SerialNumber { get; set; }
+        public string SerialNumber { get; set; } = string.Empty;
 
-        public string Status { get; set; } // Available / Assigned / Returned / Blocked / Expired / InWallet / NeedsConfirmation
+        public string Status { get; set; } = "Available"; // Available / Assigned / Returned / Blocked / Expired / InWallet / NeedsConfirmation
 
         public int? AssignedToId { get; set; }
 
@@ -24,17 +24,17 @@ namespace MobileLinesManager.Models
 
         public bool HasWallet { get; set; } = false;
 
-        public string WalletId { get; set; }
+        public string WalletId { get; set; } = string.Empty;
 
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public DateTime? UpdatedAt { get; set; }
 
-        public virtual Category Category { get; set; }
+        public virtual Category Category { get; set; } = null!;
 
-        public virtual User AssignedTo { get; set; }
+        public virtual User? AssignedTo { get; set; }
 
         public bool IsAssigned => Status == "Assigned";
     }

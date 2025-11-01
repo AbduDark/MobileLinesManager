@@ -25,19 +25,19 @@ namespace MobileLinesManager.Services
             throw new NotImplementedException("يتطلب مسح الكاميرا نافذة واجهة مستخدم مخصصة");
         }
 
-        public async Task<Line> ScanFromImageAsync(string imagePath)
+        public async Task<Line?> ScanFromImageAsync(string imagePath)
         {
-            return await Task.Run(() =>
+            return await Task.Run<Line?>(() =>
             {
                 try
                 {
                     var barcodeReader = new BarcodeReader
                     {
                         AutoRotate = true,
-                        TryInverted = true,
                         Options = new DecodingOptions
                         {
                             TryHarder = true,
+                            TryInverted = true,
                             PossibleFormats = new[] { BarcodeFormat.QR_CODE }
                         }
                     };
@@ -59,19 +59,19 @@ namespace MobileLinesManager.Services
             });
         }
 
-        public async Task<string> ScanQRFromFileAsync(string imagePath)
+        public async Task<string?> ScanQRFromFileAsync(string imagePath)
         {
-            return await Task.Run(() =>
+            return await Task.Run<string?>(() =>
             {
                 try
                 {
                     var barcodeReader = new BarcodeReader
                     {
                         AutoRotate = true,
-                        TryInverted = true,
                         Options = new DecodingOptions
                         {
                             TryHarder = true,
+                            TryInverted = true,
                             PossibleFormats = new[] { BarcodeFormat.QR_CODE }
                         }
                     };
@@ -88,7 +88,7 @@ namespace MobileLinesManager.Services
             });
         }
 
-        public Line ParseQrData(string qrData)
+        public Line? ParseQrData(string qrData)
         {
             try
             {
@@ -103,9 +103,9 @@ namespace MobileLinesManager.Services
                 var line = new Line
                 {
                     PhoneNumber = parts[0],
-                    SerialNumber = parts.Length > 1 ? parts[1] : null,
+                    SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
                     CategoryId = parts.Length > 2 && int.TryParse(parts[2], out var catId) ? catId : 0,
-                    WalletId = parts.Length > 3 ? parts[3] : null,
+                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
                     Status = "Available",
                     CreatedAt = DateTime.Now
                 };

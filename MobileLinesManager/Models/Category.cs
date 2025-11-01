@@ -13,7 +13,7 @@ namespace MobileLinesManager.Models
         public int OperatorId { get; set; }
         
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         public bool RequiresWallet { get; set; } = false;
         
@@ -27,13 +27,13 @@ namespace MobileLinesManager.Models
         
         public bool AllowAddNumbers { get; set; } = true;
         
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
         public DateTime? UpdatedAt { get; set; }
         
-        public virtual Operator Operator { get; set; }
+        public virtual Operator Operator { get; set; } = null!;
         
         public virtual ICollection<Line> Lines { get; set; } = new List<Line>();
     }

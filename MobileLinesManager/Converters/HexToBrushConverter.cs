@@ -14,7 +14,8 @@ namespace MobileLinesManager.Converters
             {
                 try
                 {
-                    return (SolidColorBrush)new BrushConverter().ConvertFrom(hexColor);
+                    var result = new BrushConverter().ConvertFrom(hexColor);
+                    return result ?? Brushes.Gray;
                 }
                 catch
                 {

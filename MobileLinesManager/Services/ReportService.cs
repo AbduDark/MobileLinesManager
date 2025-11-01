@@ -329,7 +329,7 @@ namespace MobileLinesManager.Services
             workbook.SaveAs(filePath);
         }
 
-        public async Task ExportLinesToExcelAsync(IEnumerable<Line> lines, string filePath)
+        public Task ExportLinesToExcelAsync(IEnumerable<Line> lines, string filePath)
         {
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("الخطوط");
@@ -360,6 +360,7 @@ namespace MobileLinesManager.Services
 
             worksheet.Columns().AdjustToContents();
             workbook.SaveAs(filePath);
+            return Task.CompletedTask;
         }
 
         // Text reports for in-app display

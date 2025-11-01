@@ -9,12 +9,12 @@ namespace MobileLinesManager.Models
         public int Id { get; set; }
         
         [Required]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         
         [Required]
-        public string ColorHex { get; set; }
+        public string ColorHex { get; set; } = "#000000";
         
-        public string IconPath { get; set; }
+        public string? IconPath { get; set; }
         
         
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();

@@ -138,9 +138,9 @@ namespace MobileLinesManager.Services
                 var line = new Line
                 {
                     PhoneNumber = phoneNumber,
-                    SerialNumber = parts.Length > 1 ? parts[1] : null,
+                    SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
                     CategoryId = defaultCategoryId,
-                    WalletId = parts.Length > 3 ? parts[3] : null,
+                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
                     Status = "Available",
                     HasWallet = category.RequiresWallet,
                     CreatedAt = DateTime.Now
@@ -178,9 +178,9 @@ namespace MobileLinesManager.Services
                 var line = new Line
                 {
                     PhoneNumber = parts[0],
-                    SerialNumber = parts.Length > 1 ? parts[1] : null,
+                    SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
                     CategoryId = parts.Length > 2 && int.TryParse(parts[2], out var catId) ? catId : 0,
-                    WalletId = parts.Length > 3 ? parts[3] : null,
+                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
                     Status = "Available",
                     CreatedAt = DateTime.Now
                 };

@@ -13,8 +13,11 @@ namespace MobileLinesManager.Converters
             if (value == null || parameter == null)
                 return Visibility.Collapsed;
 
-            string status = value.ToString();
-            string expectedStatus = parameter.ToString();
+            string? status = value.ToString();
+            string? expectedStatus = parameter.ToString();
+
+            if (status == null || expectedStatus == null)
+                return Visibility.Collapsed;
 
             return status.Equals(expectedStatus, StringComparison.OrdinalIgnoreCase) 
                 ? Visibility.Visible 

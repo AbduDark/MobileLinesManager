@@ -9,15 +9,15 @@ namespace MobileLinesManager.Models
         public int Id { get; set; }
         
         [Required]
-        public string EntityName { get; set; }
+        public string EntityName { get; set; } = string.Empty;
         
         [Required]
-        public string EntityType { get; set; }
+        public string EntityType { get; set; } = string.Empty;
         
         public int EntityId { get; set; }
         
         [Required]
-        public string Action { get; set; } // Create / Update / Delete
+        public string Action { get; set; } = string.Empty; // Create / Update / Delete
         
         public int? UserId { get; set; }
         
@@ -25,12 +25,12 @@ namespace MobileLinesManager.Models
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         
-        public string Details { get; set; }
+        public string Details { get; set; } = string.Empty;
         
-        public string OldValues { get; set; }
+        public string OldValues { get; set; } = string.Empty;
         
-        public string NewValues { get; set; }
+        public string NewValues { get; set; } = string.Empty;
         
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }

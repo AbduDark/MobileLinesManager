@@ -21,15 +21,15 @@ namespace MobileLinesManager.Models
 
         public DateTime? ReturnedAt { get; set; }
 
-        public string Status { get; set; } // Pending / Returned / Overdue / Cancelled
+        public string Status { get; set; } = "Pending"; // Pending / Returned / Overdue / Cancelled
 
-        public string Notes { get; set; }
+        public string Notes { get; set; } = string.Empty;
 
-        public virtual Line Line { get; set; }
+        public virtual Line Line { get; set; } = null!;
 
-        public virtual User FromUser { get; set; }
+        public virtual User? FromUser { get; set; }
 
-        public virtual User ToUser { get; set; }
+        public virtual User ToUser { get; set; } = null!;
 
         public string Worker => ToUser?.FullName ?? "غير معروف";
     }
