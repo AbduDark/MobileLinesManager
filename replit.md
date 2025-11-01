@@ -1,7 +1,7 @@
 # MobileLinesManager - WPF Desktop Application
 
 ## Overview
-MobileLinesManager is a production-ready WPF desktop application built with C# .NET 8.0 and Entity Framework Core with SQLite. This application manages mobile phone lines with features for tracking assignments, categories, operators, and generating reports. It includes Arabic right-to-left (RTL) language support.
+MobileLinesManager is a production-ready WPF desktop application built with C# .NET 8.0 and Entity Framework Core with SQLite. This application manages mobile phone lines across four Egyptian telecom operators (Vodafone, Etisalat, We, Orange) using a **group-based system**. Each group can contain up to 50 lines with features for tracking assignments, delivery, and generating comprehensive reports. The application includes Arabic right-to-left (RTL) language support.
 
 ## Important Note
 This is a **Windows-only WPF desktop application** that requires Windows to run the GUI. On Replit's Linux environment, the project can be built and validated, but the application cannot be executed as WPF requires Windows.
@@ -27,30 +27,39 @@ MobileLinesManager/
 ├── Commands/          # MVVM command implementations
 ├── Converters/        # XAML value converters
 ├── Data/             # Database context and initialization
-├── Models/           # Entity models (Line, User, Category, Operator, etc.)
+├── Models/           # Entity models (Line, User, Group, Operator, etc.)
 ├── Resources/        # XAML resource dictionaries (styles, converters)
 ├── Services/         # Business logic services
-│   ├── Alert         # Line alert monitoring
+│   ├── Alert         # Line alert monitoring (now Group-based)
 │   ├── Backup        # Database backup functionality
-│   ├── Import        # CSV import service
-│   ├── QR            # QR code operations
-│   └── Report        # PDF/Excel report generation
+│   ├── Import        # CSV import service (Group-based)
+│   ├── QR            # QR code operations (Group-based)
+│   └── Report        # PDF/Excel report generation (Group-based)
 ├── ViewModels/       # MVVM ViewModels
+│   └── GroupsViewModel.cs  # New ViewModel for Groups management
 └── Views/           # XAML views and code-behind
+    └── GroupsView.xaml     # New View for Groups management
 ```
 
 ### Features
-1. **Line Management** - Track mobile phone lines with details
-2. **Assignment Tracking** - Monitor line assignments with audit logs
-3. **Category Organization** - Organize lines by categories
-4. **Operator Management** - Manage mobile operators
-5. **Dashboard** - Overview with statistics
-6. **Reports** - Generate PDF and Excel reports
-7. **QR Code Support** - Generate and scan QR codes for lines
-8. **Import/Export** - CSV import and Excel export
-9. **Alerts** - Automated alerts for line status changes
-10. **Backup** - Database backup and restore functionality
-11. **Audit Trail** - Complete audit logging system
+1. **Group-Based Line Management** - Organize mobile phone lines into groups (up to 50 lines per group)
+2. **Four Telecom Operators** - Support for Vodafone, Etisalat, We, and Orange with brand-specific colors
+3. **Group Types** - CashWallet (60-day validity), NoWallet, Suspended, Prepaid
+4. **Delivery Tracking** - Track delivery status for CashWallet groups
+5. **Assignment Tracking** - Monitor line assignments with audit logs
+6. **Dashboard** - Overview with statistics (Group-based)
+7. **Reports** - Generate PDF and Excel reports (Group-based)
+8. **QR Code Support** - Generate and scan QR codes for lines (Group-based)
+9. **Import/Export** - CSV import and Excel export (Group-based)
+10. **Alerts** - Automated alerts for group validity changes (60-day periods for CashWallet)
+11. **Backup** - Database backup and restore functionality
+12. **Audit Trail** - Complete audit logging system
+
+### Operator-Specific UI Colors
+- **Vodafone**: Red (#E60000)
+- **Etisalat**: Green (#008000)
+- **We**: Purple (#8B008B)
+- **Orange**: Orange (#FF8C00)
 
 ## Development Setup
 
@@ -63,7 +72,7 @@ MobileLinesManager/
 The project has been set up with:
 - ✅ .NET 8.0 SDK installed
 - ✅ NuGet packages restored
-- ✅ Build validation completed successfully
+- ✅ Build validation completed successfully (0 errors, 194 warnings)
 - ⚠️ GUI execution not possible (requires Windows)
 
 ### Build Commands
@@ -82,8 +91,20 @@ dotnet build -c Release
 - Uses **SQLite** database
 - Database file: `MobileLinesManager.db` (created on first run)
 - Entity Framework Core migrations included
+- **Group** model with relationships to Operator and Lines
 
 ## Recent Changes
+- **2025-11-01**: Complete refactoring from Category-based to Group-based system
+  - Updated all services: ImportService, AlertService, QRService, DashboardViewModel
+  - Rewrote ReportService (simplified from 574 lines) with Group-based PDF/Excel exports
+  - Added Groups navigation property to Operator model
+  - Updated AppDbContext with Group relationships
+  - Created GroupsView.xaml with operator-specific colors and logos
+  - Created GroupsViewModel.cs for Groups management
+  - Updated MainWindow.xaml with operator logos (Vodafone, Etisalat, We, Orange)
+  - Updated LinesViewModel, AssignViewModel to use Groups
+  - Project builds successfully with 0 errors (194 nullable warnings)
+
 - **2025-11-01**: Project imported to Replit
   - Installed .NET 8.0 SDK
   - Restored all NuGet packages
@@ -91,10 +112,15 @@ dotnet build -c Release
   - Added comprehensive .gitignore for .NET projects
 
 ## User Preferences
-- None specified yet
+- Prefer Group-based architecture over Category-based
+- Support for Egyptian telecom operators with brand-specific UI
+- Arabic language support with RTL layout
 
 ## Notes
 - The application includes Arabic language support with RTL layout
-- Build warnings related to nullable reference types are expected and non-critical
+- Build warnings (194) related to nullable reference types are expected and non-critical
 - The project uses dependency injection pattern with ServiceLocator
 - Database is initialized automatically on first run
+- GroupsView DataContext is wired through ServiceLocator in code-behind
+- Each group supports up to 50 lines
+- CashWallet groups have 60-day validity periods with delivery tracking
