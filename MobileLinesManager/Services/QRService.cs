@@ -18,10 +18,12 @@ namespace MobileLinesManager.Services
 
         public async Task<Line> ScanFromWebcamAsync()
         {
-            // Note: Full webcam integration requires additional UI component
-            // This is a placeholder for the core logic
-            await Task.CompletedTask;
-            throw new NotImplementedException("يتطلب مسح الكاميرا نافذة واجهة مستخدم مخصصة");
+            return await Task.Run<Line>(() =>
+            {
+                // This will be called from QRScannerWindow
+                // The actual implementation is in the UI layer
+                throw new NotImplementedException("استخدم QRScannerWindow للمسح من الكاميرا");
+            });
         }
 
         public async Task<Line?> ScanFromImageAsync(string imagePath)

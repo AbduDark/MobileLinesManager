@@ -17,7 +17,7 @@ namespace MobileLinesManager.ViewModels
         private readonly AppDbContext _db;
         private readonly IImportService _importService;
         private readonly IQRService _qrService;
-        
+
         private ObservableCollection<Line> _lines;
         private ObservableCollection<Group> _groups;
         private Line _selectedLine;
@@ -37,10 +37,10 @@ namespace MobileLinesManager.ViewModels
             _db = db;
             _importService = importService;
             _qrService = qrService;
-            
+
             Lines = new ObservableCollection<Line>();
             Groups = new ObservableCollection<Group>();
-            
+
             LoadDataCommand = new AsyncRelayCommand(async _ => await LoadDataAsync());
             AddLineCommand = new AsyncRelayCommand(async _ => await AddLineAsync(), _ => CanAddLine());
             EditLineCommand = new RelayCommand(_ => EditLine(), _ => SelectedLine != null);
@@ -50,7 +50,8 @@ namespace MobileLinesManager.ViewModels
             SearchCommand = new AsyncRelayCommand(async _ => await SearchLinesAsync());
             ImportCSVCommand = new AsyncRelayCommand(async _ => await ImportCSVAsync());
             ImportQRCommand = new AsyncRelayCommand(async _ => await ImportQRAsync());
-            
+            ScanFromWebcamCommand = new AsyncRelayCommand(async _ => await ScanFromWebcamAsync());
+
             LoadDataAsync().ConfigureAwait(false);
         }
 
@@ -147,6 +148,8 @@ namespace MobileLinesManager.ViewModels
         public ICommand SearchCommand { get; }
         public ICommand ImportCSVCommand { get; }
         public ICommand ImportQRCommand { get; }
+        public ICommand ScanFromWebcamCommand { get; }
+        public ICommand GenerateQRCommand { get; }
 
         private async Task LoadDataAsync()
         {
@@ -208,7 +211,7 @@ namespace MobileLinesManager.ViewModels
                     .Include(g => g.Operator)
                     .Include(g => g.Lines)
                     .FirstOrDefaultAsync(g => g.Id == groupId.Value);
-                
+
                 await LoadLinesAsync();
             }
             else
@@ -262,7 +265,7 @@ namespace MobileLinesManager.ViewModels
 
                 ClearForm();
                 await LoadLinesAsync();
-                
+
                 MessageBox.Show("تم إضافة الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -302,11 +305,11 @@ namespace MobileLinesManager.ViewModels
                     SelectedLine.UpdatedAt = DateTime.Now;
 
                     await _db.SaveChangesAsync();
-                    
+
                     ClearForm();
                     IsEditing = false;
                     await LoadLinesAsync();
-                    
+
                     MessageBox.Show("تم تحديث الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
@@ -333,7 +336,7 @@ namespace MobileLinesManager.ViewModels
                         _db.Lines.Remove(SelectedLine);
                         await _db.SaveChangesAsync();
                         await LoadLinesAsync();
-                        
+
                         MessageBox.Show("تم حذف الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
@@ -416,7 +419,7 @@ namespace MobileLinesManager.ViewModels
                 try
                 {
                     var result = await _importService.ImportFromCSVAsync(dialog.FileName, SelectedGroupId.Value);
-                    
+
                     if (result.SuccessfulLines.Count > 0)
                     {
                         await LoadLinesAsync();
@@ -446,6 +449,81 @@ namespace MobileLinesManager.ViewModels
             }
 
             MessageBox.Show("ميزة مسح QR ستكون متاحة قريباً", "قيد التطوير", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private async Task ScanQRAsync()
+        {
+            try
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp|All Files|*.*",
+                    Title = "اختر صورة QR"
+                };
+
+                if (dialog.ShowDialog() == true)
+                {
+                    var line = await _qrService.ScanFromImageAsync(dialog.FileName);
+
+                    if (line != null)
+                    {
+                        if (CurrentGroup != null)
+                        {
+                            line.GroupId = CurrentGroup.Id;
+                        }
+
+                        PhoneNumber = line.PhoneNumber;
+                        SerialNumber = line.SerialNumber;
+                        AssociatedName = line.AssociatedName;
+                        NationalId = line.NationalId;
+                        CashWalletId = line.CashWalletId;
+                        Notes = line.Notes;
+
+                        MessageBox.Show("تم مسح QR بنجاح!", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("فشل مسح QR. تأكد من أن الصورة تحتوي على رمز QR صحيح.", "خطأ", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في مسح QR: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task ScanFromWebcamAsync()
+        {
+            try
+            {
+                var scannerWindow = new Views.QRScannerWindow(_qrService);
+
+                if (scannerWindow.ShowDialog() == true && scannerWindow.ScannedLine != null)
+                {
+                    var line = scannerWindow.ScannedLine;
+
+                    if (CurrentGroup != null)
+                    {
+                        line.GroupId = CurrentGroup.Id;
+                    }
+
+                    PhoneNumber = line.PhoneNumber;
+                    SerialNumber = line.SerialNumber;
+                    AssociatedName = line.AssociatedName;
+                    NationalId = line.NationalId;
+                    CashWalletId = line.CashWalletId;
+                    Notes = line.Notes;
+
+                    MessageBox.Show("تم مسح QR من الكاميرا بنجاح!", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في مسح QR من الكاميرا: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            await Task.CompletedTask;
         }
     }
 }

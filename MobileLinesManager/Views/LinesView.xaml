@@ -1,4 +1,3 @@
-
 <UserControl x:Class="MobileLinesManager.Views.LinesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,14 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Search and Actions Bar -->
         <Border Grid.Row="0" Background="#F5F5F5" Padding="15" Margin="0,0,0,10">
             <Grid>
@@ -21,7 +20,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
                             Width="300" 
@@ -50,19 +49,25 @@
                            Command="{Binding SearchCommand}" 
                            Style="{StaticResource PrimaryButton}"/>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <Button Content="استيراد CSV" 
                            Command="{Binding ImportCSVCommand}" 
                            Style="{StaticResource SecondaryButton}" 
                            Margin="0,0,5,0"/>
-                    <Button Content="مسح QR" 
-                           Command="{Binding ImportQRCommand}" 
-                           Style="{StaticResource SecondaryButton}"/>
+                    <Button Content="📷 مسح QR من صورة"
+                            Command="{Binding ScanQRCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Margin="5,0"/>
+
+                    <Button Content="📹 مسح من الكاميرا"
+                            Command="{Binding ScanFromWebcamCommand}"
+                            Style="{StaticResource SecondaryButton}"
+                            Margin="5,0"/>
                 </StackPanel>
             </Grid>
         </Border>
-        
+
         <!-- Lines Grid -->
         <DataGrid Grid.Row="1" 
                  ItemsSource="{Binding Lines}" 
@@ -86,7 +91,7 @@
                 <DataGridTextColumn Header="تاريخ الإضافة" Binding="{Binding CreatedAt, StringFormat=dd/MM/yyyy}" Width="120"/>
             </DataGrid.Columns>
         </DataGrid>
-        
+
         <!-- Add/Edit Form -->
         <Border Grid.Row="2" Background="#F5F5F5" Padding="15" Margin="0,10,0,0">
             <Grid>
@@ -95,13 +100,13 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <TextBlock Grid.Row="0" 
                           Text="{Binding IsEditing, Converter={StaticResource BoolToTextConverter}, ConverterParameter='تعديل خط|إضافة خط جديد'}" 
                           FontSize="18" 
                           FontWeight="SemiBold" 
                           Margin="0,0,0,15"/>
-                
+
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -112,7 +117,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    
+
                     <StackPanel Grid.Column="0" Margin="0,0,10,10">
                         <TextBlock Text="المشغل" Margin="0,0,0,5"/>
                         <ComboBox ItemsSource="{Binding Operators}" 
@@ -121,7 +126,7 @@
                                  DisplayMemberPath="Name" 
                                  Padding="8"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Column="1" Margin="0,0,10,10">
                         <TextBlock Text="الفئة" Margin="0,0,0,5"/>
                         <ComboBox ItemsSource="{Binding Categories}" 
@@ -130,32 +135,32 @@
                                  DisplayMemberPath="Name" 
                                  Padding="8"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Column="2" Margin="0,0,0,10">
                         <TextBlock Text="رقم الهاتف" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
                                 Padding="8"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,10">
                         <TextBlock Text="الرقم التسلسلي" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding SerialNumber, UpdateSourceTrigger=PropertyChanged}" 
                                 Padding="8"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,10,10">
                         <TextBlock Text="رقم المحفظة" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding WalletId, UpdateSourceTrigger=PropertyChanged}" 
                                 Padding="8"/>
                     </StackPanel>
-                    
+
                     <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10">
                         <TextBlock Text="ملاحظات" Margin="0,0,0,5"/>
                         <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" 
                                 Padding="8"/>
                     </StackPanel>
                 </Grid>
-                
+
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                     <Button Content="إضافة" 
                            Command="{Binding AddLineCommand}" 
