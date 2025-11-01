@@ -1,6 +1,7 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:convv="clr-namespace:MobileLinesManager.Converters">
+<ResourceDictionary 
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:convv="clr-namespace:MobileLinesManager.Converters">
 
     <convv:HexToBrushConverter x:Key="HexToBrushConverter"/>
     <convv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
