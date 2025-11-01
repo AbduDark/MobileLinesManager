@@ -1,8 +1,6 @@
-
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using MobileLinesManager.Models;
 using ZXing;
@@ -92,7 +90,7 @@ namespace MobileLinesManager.Services
         {
             try
             {
-                // Expected format: PhoneNumber|SerialNumber|CategoryId|WalletId
+                // Expected format: PhoneNumber|SerialNumber|GroupId|CashWalletId|AssociatedName|NationalId
                 var parts = qrData.Split('|');
 
                 if (parts.Length < 1)
@@ -104,8 +102,10 @@ namespace MobileLinesManager.Services
                 {
                     PhoneNumber = parts[0],
                     SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
-                    CategoryId = parts.Length > 2 && int.TryParse(parts[2], out var catId) ? catId : 0,
-                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
+                    GroupId = parts.Length > 2 && int.TryParse(parts[2], out var grpId) ? grpId : 0,
+                    CashWalletId = parts.Length > 3 ? parts[3] : string.Empty,
+                    AssociatedName = parts.Length > 4 ? parts[4] : string.Empty,
+                    NationalId = parts.Length > 5 ? parts[5] : string.Empty,
                     Status = "Available",
                     CreatedAt = DateTime.Now
                 };
@@ -122,8 +122,8 @@ namespace MobileLinesManager.Services
         {
             try
             {
-                // Format: PhoneNumber|SerialNumber|CategoryId|WalletId
-                var payload = $"{line.PhoneNumber}|{line.SerialNumber}|{line.CategoryId}|{line.WalletId}";
+                // Format: PhoneNumber|SerialNumber|GroupId|CashWalletId|AssociatedName|NationalId
+                var payload = $"{line.PhoneNumber}|{line.SerialNumber}|{line.GroupId}|{line.CashWalletId}|{line.AssociatedName}|{line.NationalId}";
 
                 var writer = new BarcodeWriter
                 {
@@ -143,7 +143,7 @@ namespace MobileLinesManager.Services
             }
             catch (Exception)
             {
-                return null;
+                return Array.Empty<byte>();
             }
         }
     }

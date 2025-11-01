@@ -54,31 +54,32 @@ namespace MobileLinesManager.ViewModels
 
         private async Task LoadDataAsync()
         {
-            var lines = await _db.Lines.Include(l => l.Category).ToListAsync();
+            var lines = await _db.Lines.Include(l => l.Group).ToListAsync();
 
-            TotalLines = lines.Count;
+            TotalLines = lines.Count();
             AvailableLines = lines.Count(l => !l.IsAssigned);
             AssignedLines = lines.Count(l => l.IsAssigned);
             ExpiredLines = lines.Count(l =>
-                l.Category.HasExpiry &&
                 l.ExpectedReturnDate.HasValue &&
                 l.ExpectedReturnDate.Value < System.DateTime.Today);
 
             var operators = await _db.Operators
-                                     .Include(o => o.Categories)
-                                     .ThenInclude(c => c.Lines)
+                                     .Include(o => o.Groups)
+                                     .ThenInclude(g => g.Lines)
                                      .ToListAsync();
 
             Operators.Clear();
             foreach (var op in operators)
             {
-                Operators.Add(new OperatorViewModel
+                var opViewModel = new OperatorViewModel
                 {
                     Id = op.Id,
                     Name = op.Name,
                     ColorHex = op.ColorHex,
-                    Categories = op.Categories
-                });
+                    Categories = new System.Collections.Generic.List<Category>()
+                };
+                
+                Operators.Add(opViewModel);
             }
         }
 

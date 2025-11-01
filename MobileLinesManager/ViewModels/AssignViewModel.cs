@@ -97,8 +97,8 @@ namespace MobileLinesManager.ViewModels
         private async Task LoadDataAsync()
         {
             var availableLines = await _db.Lines
-                .Include(l => l.Category)
-                .ThenInclude(c => c.Operator)
+                .Include(l => l.Group)
+                .ThenInclude(g => g.Operator)
                 .Where(l => l.Status == "Available")
                 .ToListAsync();
 
@@ -125,7 +125,7 @@ namespace MobileLinesManager.ViewModels
         {
             var assignments = await _db.AssignmentLogs
                 .Include(a => a.Line)
-                .ThenInclude(l => l.Category)
+                .ThenInclude(l => l.Group)
                 .Include(a => a.ToUser)
                 .OrderByDescending(a => a.AssignedAt)
                 .Take(100)

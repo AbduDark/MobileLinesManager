@@ -24,59 +24,8 @@ namespace MobileLinesManager.Services
 
         public async Task<List<AlertItem>> CheckExpiryAlertsAsync()
         {
-            using var scope = _serviceProvider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            
-            var items = new List<AlertItem>();
-            var categories = await db.Categories
-                .Include(c => c.Operator)
-                .Where(c => c.HasExpiry)
-                .ToListAsync();
-
-            foreach (var cat in categories)
-            {
-                var rule = await db.AlertRules
-                    .FirstOrDefaultAsync(r => r.CategoryId == cat.Id && r.AlertType == "Expiry" && r.Enabled)
-                    ?? await db.AlertRules
-                        .FirstOrDefaultAsync(r => r.CategoryId == null && r.AlertType == "Expiry" && r.Enabled);
-
-                int daysBefore = rule?.DaysBeforeExpiry ?? cat.DefaultAlertDaysBeforeExpiry;
-
-                var lines = await db.Lines
-                    .Include(l => l.Category)
-                        .ThenInclude(c => c.Operator)
-                    .Include(l => l.AssignedTo)
-                    .Where(l => l.CategoryId == cat.Id)
-                    .ToListAsync();
-
-                foreach (var line in lines)
-                {
-                    DateTime reference = line.AssignedAt ?? line.CreatedAt;
-                    DateTime expiry = reference.AddDays(cat.ExpiryDays ?? 90);
-                    var daysUntilExpiry = (expiry - DateTime.Today).TotalDays;
-
-                    if (daysUntilExpiry <= daysBefore && daysUntilExpiry >= 0)
-                    {
-                        items.Add(new AlertItem
-                        {
-                            Line = line,
-                            Message = $"خط {line.PhoneNumber} فترته تنتهي في {expiry:d} (بعد {(int)daysUntilExpiry} يوم)",
-                            AlertType = "Expiry"
-                        });
-                    }
-                    else if (daysUntilExpiry < 0)
-                    {
-                        items.Add(new AlertItem
-                        {
-                            Line = line,
-                            Message = $"خط {line.PhoneNumber} منتهي منذ {expiry:d}",
-                            AlertType = "Expired"
-                        });
-                    }
-                }
-            }
-
-            return items;
+            // دمج مع وظيفة CheckGroupValidityAlertsAsync للنظام الجديد
+            return await CheckGroupValidityAlertsAsync();
         }
 
         public async Task<List<AlertItem>> CheckOverdueAssignmentsAsync()
@@ -86,8 +35,8 @@ namespace MobileLinesManager.Services
             
             var items = new List<AlertItem>();
             var overdueLines = await db.Lines
-                .Include(l => l.Category)
-                    .ThenInclude(c => c.Operator)
+                .Include(l => l.Group)
+                    .ThenInclude(g => g.Operator)
                 .Include(l => l.AssignedTo)
                 .Where(l => l.ExpectedReturnDate.HasValue 
                     && l.ExpectedReturnDate.Value < DateTime.Today 

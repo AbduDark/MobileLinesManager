@@ -228,32 +228,13 @@ namespace MobileLinesManager.ViewModels
         {
             if (SelectedCategory != null)
             {
-                var hasLines = await _db.Lines.AnyAsync(l => l.CategoryId == SelectedCategory.Id);
-                
-                if (hasLines)
-                {
-                    MessageBox.Show(
-                        "لا يمكن حذف الفئة لأنها تحتوي على خطوط",
-                        "خطأ",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
-                var result = MessageBox.Show(
-                    $"هل تريد حذف الفئة {SelectedCategory.Name}؟",
-                    "تأكيد الحذف",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    _db.Categories.Remove(SelectedCategory);
-                    await _db.SaveChangesAsync();
-                    await LoadDataAsync();
-                    
-                    MessageBox.Show("تم حذف الفئة بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
+                // تم تعطيل هذه الوظيفة - النظام الآن يستخدم Groups بدلاً من Categories
+                MessageBox.Show(
+                    "هذه الوظيفة لم تعد مستخدمة. الرجاء استخدام إدارة المجموعات.",
+                    "تنبيه",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
             }
         }
 

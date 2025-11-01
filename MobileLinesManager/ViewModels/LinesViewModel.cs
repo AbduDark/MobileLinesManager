@@ -1,4 +1,4 @@
-
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,17 +19,18 @@ namespace MobileLinesManager.ViewModels
         private readonly IQRService _qrService;
         
         private ObservableCollection<Line> _lines;
-        private ObservableCollection<Category> _categories;
-        private ObservableCollection<Operator> _operators;
+        private ObservableCollection<Group> _groups;
         private Line _selectedLine;
-        private int? _selectedOperatorId;
-        private int? _selectedCategoryId;
+        private int? _selectedGroupId;
         private string _searchText;
         private string _phoneNumber;
         private string _serialNumber;
-        private string _walletId;
+        private string _associatedName;
+        private string _nationalId;
+        private string _cashWalletId;
         private string _notes;
         private bool _isEditing;
+        private Group _currentGroup;
 
         public LinesViewModel(AppDbContext db, IImportService importService, IQRService qrService)
         {
@@ -38,14 +39,13 @@ namespace MobileLinesManager.ViewModels
             _qrService = qrService;
             
             Lines = new ObservableCollection<Line>();
-            Categories = new ObservableCollection<Category>();
-            Operators = new ObservableCollection<Operator>();
+            Groups = new ObservableCollection<Group>();
             
             LoadDataCommand = new AsyncRelayCommand(async _ => await LoadDataAsync());
             AddLineCommand = new AsyncRelayCommand(async _ => await AddLineAsync(), _ => CanAddLine());
-            EditLineCommand = new RelayCommand(EditLine, _ => SelectedLine != null);
+            EditLineCommand = new RelayCommand(_ => EditLine(), _ => SelectedLine != null);
             DeleteLineCommand = new AsyncRelayCommand(async _ => await DeleteLineAsync(), _ => SelectedLine != null);
-            SaveLineCommand = new AsyncRelayCommand(async _ => await SaveLineAsync(), _ => IsEditing);
+            SaveLineCommand = new AsyncRelayCommand(async _ => await SaveLineAsync(), _ => IsEditing && CanSaveLine());
             CancelEditCommand = new RelayCommand(_ => CancelEdit(), _ => IsEditing);
             SearchCommand = new AsyncRelayCommand(async _ => await SearchLinesAsync());
             ImportCSVCommand = new AsyncRelayCommand(async _ => await ImportCSVAsync());
@@ -60,16 +60,10 @@ namespace MobileLinesManager.ViewModels
             set => SetProperty(ref _lines, value);
         }
 
-        public ObservableCollection<Category> Categories
+        public ObservableCollection<Group> Groups
         {
-            get => _categories;
-            set => SetProperty(ref _categories, value);
-        }
-
-        public ObservableCollection<Operator> Operators
-        {
-            get => _operators;
-            set => SetProperty(ref _operators, value);
+            get => _groups;
+            set => SetProperty(ref _groups, value);
         }
 
         public Line SelectedLine
@@ -78,22 +72,22 @@ namespace MobileLinesManager.ViewModels
             set => SetProperty(ref _selectedLine, value);
         }
 
-        public int? SelectedOperatorId
+        public int? SelectedGroupId
         {
-            get => _selectedOperatorId;
+            get => _selectedGroupId;
             set
             {
-                if (SetProperty(ref _selectedOperatorId, value))
+                if (SetProperty(ref _selectedGroupId, value))
                 {
-                    LoadCategoriesByOperatorAsync(value).ConfigureAwait(false);
+                    LoadGroupDetails(value).ConfigureAwait(false);
                 }
             }
         }
 
-        public int? SelectedCategoryId
+        public Group CurrentGroup
         {
-            get => _selectedCategoryId;
-            set => SetProperty(ref _selectedCategoryId, value);
+            get => _currentGroup;
+            set => SetProperty(ref _currentGroup, value);
         }
 
         public string SearchText
@@ -114,10 +108,22 @@ namespace MobileLinesManager.ViewModels
             set => SetProperty(ref _serialNumber, value);
         }
 
-        public string WalletId
+        public string AssociatedName
         {
-            get => _walletId;
-            set => SetProperty(ref _walletId, value);
+            get => _associatedName;
+            set => SetProperty(ref _associatedName, value);
+        }
+
+        public string NationalId
+        {
+            get => _nationalId;
+            set => SetProperty(ref _nationalId, value);
+        }
+
+        public string CashWalletId
+        {
+            get => _cashWalletId;
+            set => SetProperty(ref _cashWalletId, value);
         }
 
         public string Notes
@@ -144,109 +150,169 @@ namespace MobileLinesManager.ViewModels
 
         private async Task LoadDataAsync()
         {
-            var operators = await _db.Operators.ToListAsync();
-            Operators.Clear();
-            foreach (var op in operators)
+            try
             {
-                Operators.Add(op);
-            }
+                var groups = await _db.Groups
+                    .Include(g => g.Operator)
+                    .Include(g => g.Lines)
+                    .ToListAsync();
 
-            await LoadLinesAsync();
+                Groups.Clear();
+                foreach (var group in groups)
+                {
+                    Groups.Add(group);
+                }
+
+                await LoadLinesAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في تحميل البيانات: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async Task LoadLinesAsync()
         {
-            var lines = await _db.Lines
-                .Include(l => l.Category)
-                .ThenInclude(c => c.Operator)
-                .Include(l => l.AssignedTo)
-                .OrderByDescending(l => l.CreatedAt)
-                .ToListAsync();
-
-            Lines.Clear();
-            foreach (var line in lines)
+            try
             {
-                Lines.Add(line);
+                var query = _db.Lines
+                    .Include(l => l.Group)
+                        .ThenInclude(g => g.Operator)
+                    .Include(l => l.AssignedTo)
+                    .AsQueryable();
+
+                if (SelectedGroupId.HasValue)
+                {
+                    query = query.Where(l => l.GroupId == SelectedGroupId.Value);
+                }
+
+                var lines = await query.OrderByDescending(l => l.CreatedAt).ToListAsync();
+
+                Lines.Clear();
+                foreach (var line in lines)
+                {
+                    Lines.Add(line);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في تحميل الخطوط: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private async Task LoadCategoriesByOperatorAsync(int? operatorId)
+        private async Task LoadGroupDetails(int? groupId)
         {
-            Categories.Clear();
-            
-            if (operatorId.HasValue)
+            if (groupId.HasValue)
             {
-                var categories = await _db.Categories
-                    .Where(c => c.OperatorId == operatorId.Value)
-                    .ToListAsync();
+                CurrentGroup = await _db.Groups
+                    .Include(g => g.Operator)
+                    .Include(g => g.Lines)
+                    .FirstOrDefaultAsync(g => g.Id == groupId.Value);
                 
-                foreach (var cat in categories)
-                {
-                    Categories.Add(cat);
-                }
+                await LoadLinesAsync();
+            }
+            else
+            {
+                CurrentGroup = null;
             }
         }
 
         private bool CanAddLine()
         {
-            return !string.IsNullOrWhiteSpace(PhoneNumber) && SelectedCategoryId.HasValue;
+            return !string.IsNullOrWhiteSpace(PhoneNumber) && SelectedGroupId.HasValue;
+        }
+
+        private bool CanSaveLine()
+        {
+            return !string.IsNullOrWhiteSpace(PhoneNumber) && SelectedGroupId.HasValue;
         }
 
         private async Task AddLineAsync()
         {
-            var category = await _db.Categories.FindAsync(SelectedCategoryId.Value);
-            
-            var line = new Line
+            try
             {
-                CategoryId = SelectedCategoryId.Value,
-                PhoneNumber = PhoneNumber,
-                SerialNumber = SerialNumber,
-                Status = "Available",
-                HasWallet = category.RequiresWallet,
-                WalletId = WalletId,
-                Notes = Notes
-            };
+                if (CurrentGroup != null && CurrentGroup.IsFull)
+                {
+                    MessageBox.Show($"المجموعة ممتلئة (الحد الأقصى {CurrentGroup.MaxLinesCount} خط)", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-            _db.Lines.Add(line);
-            await _db.SaveChangesAsync();
+                var exists = await _db.Lines.AnyAsync(l => l.PhoneNumber == PhoneNumber);
+                if (exists)
+                {
+                    MessageBox.Show($"الرقم {PhoneNumber} موجود بالفعل", "تحذير", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
 
-            ClearForm();
-            await LoadLinesAsync();
-            
-            MessageBox.Show("تم إضافة الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                var line = new Line
+                {
+                    GroupId = SelectedGroupId.Value,
+                    PhoneNumber = PhoneNumber,
+                    SerialNumber = SerialNumber ?? string.Empty,
+                    AssociatedName = AssociatedName ?? string.Empty,
+                    NationalId = NationalId ?? string.Empty,
+                    CashWalletId = CashWalletId ?? string.Empty,
+                    Status = "Available",
+                    Notes = Notes ?? string.Empty,
+                    CreatedAt = DateTime.Now
+                };
+
+                _db.Lines.Add(line);
+                await _db.SaveChangesAsync();
+
+                ClearForm();
+                await LoadLinesAsync();
+                
+                MessageBox.Show("تم إضافة الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في إضافة الخط: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
-        private void EditLine(object parameter)
+        private void EditLine()
         {
             if (SelectedLine != null)
             {
                 PhoneNumber = SelectedLine.PhoneNumber;
                 SerialNumber = SelectedLine.SerialNumber;
-                WalletId = SelectedLine.WalletId;
+                AssociatedName = SelectedLine.AssociatedName;
+                NationalId = SelectedLine.NationalId;
+                CashWalletId = SelectedLine.CashWalletId;
                 Notes = SelectedLine.Notes;
-                SelectedCategoryId = SelectedLine.CategoryId;
+                SelectedGroupId = SelectedLine.GroupId;
                 IsEditing = true;
             }
         }
 
         private async Task SaveLineAsync()
         {
-            if (SelectedLine != null)
+            try
             {
-                SelectedLine.PhoneNumber = PhoneNumber;
-                SelectedLine.SerialNumber = SerialNumber;
-                SelectedLine.WalletId = WalletId;
-                SelectedLine.Notes = Notes;
-                SelectedLine.CategoryId = SelectedCategoryId.Value;
-                SelectedLine.UpdatedAt = System.DateTime.Now;
+                if (SelectedLine != null)
+                {
+                    SelectedLine.PhoneNumber = PhoneNumber;
+                    SelectedLine.SerialNumber = SerialNumber ?? string.Empty;
+                    SelectedLine.AssociatedName = AssociatedName ?? string.Empty;
+                    SelectedLine.NationalId = NationalId ?? string.Empty;
+                    SelectedLine.CashWalletId = CashWalletId ?? string.Empty;
+                    SelectedLine.Notes = Notes ?? string.Empty;
+                    SelectedLine.GroupId = SelectedGroupId.Value;
+                    SelectedLine.UpdatedAt = DateTime.Now;
 
-                await _db.SaveChangesAsync();
-                
-                ClearForm();
-                IsEditing = false;
-                await LoadLinesAsync();
-                
-                MessageBox.Show("تم تحديث الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                    await _db.SaveChangesAsync();
+                    
+                    ClearForm();
+                    IsEditing = false;
+                    await LoadLinesAsync();
+                    
+                    MessageBox.Show("تم تحديث الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"خطأ في تحديث الخط: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -262,11 +328,18 @@ namespace MobileLinesManager.ViewModels
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    _db.Lines.Remove(SelectedLine);
-                    await _db.SaveChangesAsync();
-                    await LoadLinesAsync();
-                    
-                    MessageBox.Show("تم حذف الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                    try
+                    {
+                        _db.Lines.Remove(SelectedLine);
+                        await _db.SaveChangesAsync();
+                        await LoadLinesAsync();
+                        
+                        MessageBox.Show("تم حذف الخط بنجاح", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"خطأ في حذف الخط: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
         }
@@ -281,87 +354,98 @@ namespace MobileLinesManager.ViewModels
         {
             PhoneNumber = string.Empty;
             SerialNumber = string.Empty;
-            WalletId = string.Empty;
+            AssociatedName = string.Empty;
+            NationalId = string.Empty;
+            CashWalletId = string.Empty;
             Notes = string.Empty;
-            SelectedCategoryId = null;
-            SelectedLine = null;
         }
 
         private async Task SearchLinesAsync()
         {
-            if (string.IsNullOrWhiteSpace(SearchText))
+            try
             {
-                await LoadLinesAsync();
-                return;
+                var query = _db.Lines
+                    .Include(l => l.Group)
+                        .ThenInclude(g => g.Operator)
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(SearchText))
+                {
+                    query = query.Where(l =>
+                        l.PhoneNumber.Contains(SearchText) ||
+                        l.SerialNumber.Contains(SearchText) ||
+                        l.AssociatedName.Contains(SearchText) ||
+                        l.NationalId.Contains(SearchText) ||
+                        l.CashWalletId.Contains(SearchText));
+                }
+
+                if (SelectedGroupId.HasValue)
+                {
+                    query = query.Where(l => l.GroupId == SelectedGroupId.Value);
+                }
+
+                var lines = await query.OrderByDescending(l => l.CreatedAt).ToListAsync();
+
+                Lines.Clear();
+                foreach (var line in lines)
+                {
+                    Lines.Add(line);
+                }
             }
-
-            var lines = await _db.Lines
-                .Include(l => l.Category)
-                .ThenInclude(c => c.Operator)
-                .Include(l => l.AssignedTo)
-                .Where(l => l.PhoneNumber.Contains(SearchText) || 
-                           l.SerialNumber.Contains(SearchText) ||
-                           l.WalletId.Contains(SearchText))
-                .ToListAsync();
-
-            Lines.Clear();
-            foreach (var line in lines)
+            catch (Exception ex)
             {
-                Lines.Add(line);
+                MessageBox.Show($"خطأ في البحث: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private async Task ImportCSVAsync()
         {
+            if (!SelectedGroupId.HasValue)
+            {
+                MessageBox.Show("الرجاء اختيار مجموعة أولاً", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "CSV Files (*.csv)|*.csv",
-                Title = "اختر ملف CSV"
+                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
             };
 
-            if (dialog.ShowDialog() == true && SelectedCategoryId.HasValue)
+            if (dialog.ShowDialog() == true)
             {
-                var result = await _importService.ImportFromCSVAsync(dialog.FileName, SelectedCategoryId.Value);
-                
-                MessageBox.Show(
-                    $"تم معالجة {result.TotalProcessed} سطر\nنجح: {result.SuccessCount}\nفشل: {result.Errors.Count}",
-                    "نتيجة الاستيراد",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                
-                await LoadLinesAsync();
+                try
+                {
+                    var result = await _importService.ImportFromCSVAsync(dialog.FileName, SelectedGroupId.Value);
+                    
+                    if (result.SuccessfulLines.Count > 0)
+                    {
+                        await LoadLinesAsync();
+                    }
+
+                    var message = $"تم استيراد {result.SuccessfulLines.Count} من {result.TotalProcessed} خط";
+                    if (result.Errors.Count > 0)
+                    {
+                        message += $"\n\nالأخطاء:\n{string.Join("\n", result.Errors)}";
+                    }
+
+                    MessageBox.Show(message, "نتيجة الاستيراد", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"خطأ في استيراد الملف: {ex.Message}", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
         private async Task ImportQRAsync()
         {
-            var dialog = new Microsoft.Win32.OpenFileDialog
+            if (!SelectedGroupId.HasValue)
             {
-                Filter = "Image Files (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg",
-                Title = "اختر صورة QR"
-            };
-
-            if (dialog.ShowDialog() == true && SelectedCategoryId.HasValue)
-            {
-                var qrData = await _qrService.ScanQRFromFileAsync(dialog.FileName);
-                
-                if (!string.IsNullOrWhiteSpace(qrData))
-                {
-                    var result = await _importService.ImportFromQRDataAsync(qrData, SelectedCategoryId.Value);
-                    
-                    MessageBox.Show(
-                        $"تم استيراد {result.SuccessCount} خط من QR",
-                        "نجاح",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    
-                    await LoadLinesAsync();
-                }
-                else
-                {
-                    MessageBox.Show("فشل قراءة QR", "خطأ", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                MessageBox.Show("الرجاء اختيار مجموعة أولاً", "تنبيه", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
+
+            MessageBox.Show("ميزة مسح QR ستكون متاحة قريباً", "قيد التطوير", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

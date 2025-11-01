@@ -18,5 +18,6 @@ namespace MobileLinesManager.Models
         
         
         public virtual ICollection<Category> Categories { get; set; } = new List<Category>();
+        public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
     }
 }

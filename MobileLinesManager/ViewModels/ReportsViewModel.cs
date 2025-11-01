@@ -201,8 +201,8 @@ namespace MobileLinesManager.ViewModels
             if (dialog.ShowDialog() == true)
             {
                 var lines = await _db.Lines
-                    .Include(l => l.Category)
-                    .ThenInclude(c => c.Operator)
+                    .Include(l => l.Group)
+                    .ThenInclude(g => g.Operator)
                     .Include(l => l.AssignedTo)
                     .ToListAsync();
 

@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -22,19 +21,26 @@ namespace MobileLinesManager.Services
             _db = db;
         }
 
-        public async Task<ImportResult> ImportFromCSVAsync(string filePath, int defaultCategoryId)
+        public async Task<ImportResult> ImportFromCSVAsync(string filePath, int defaultGroupId)
         {
             var result = new ImportResult();
 
             try
             {
-                var category = await _db.Categories
-                    .Include(c => c.Operator)
-                    .FirstOrDefaultAsync(c => c.Id == defaultCategoryId);
+                var group = await _db.Groups
+                    .Include(g => g.Operator)
+                    .Include(g => g.Lines)
+                    .FirstOrDefaultAsync(g => g.Id == defaultGroupId);
 
-                if (category == null)
+                if (group == null)
                 {
-                    result.Errors.Add("الفئة المحددة غير موجودة");
+                    result.Errors.Add("المجموعة المحددة غير موجودة");
+                    return result;
+                }
+
+                if (group.IsFull)
+                {
+                    result.Errors.Add($"المجموعة '{group.Name}' ممتلئة (الحد الأقصى {group.MaxLinesCount} خط)");
                     return result;
                 }
 
@@ -61,7 +67,12 @@ namespace MobileLinesManager.Services
                             continue;
                         }
 
-                        // Check if line already exists
+                        if (group.CurrentLinesCount >= group.MaxLinesCount)
+                        {
+                            result.Errors.Add($"المجموعة وصلت للحد الأقصى ({group.MaxLinesCount} خط)");
+                            break;
+                        }
+
                         var exists = await _db.Lines.AnyAsync(l => l.PhoneNumber == record.PhoneNumber);
                         if (exists)
                         {
@@ -71,13 +82,14 @@ namespace MobileLinesManager.Services
 
                         var line = new Line
                         {
-                            CategoryId = defaultCategoryId,
+                            GroupId = defaultGroupId,
                             PhoneNumber = record.PhoneNumber,
-                            SerialNumber = record.SerialNumber,
+                            SerialNumber = record.SerialNumber ?? string.Empty,
+                            AssociatedName = record.AssociatedName ?? string.Empty,
+                            NationalId = record.NationalId ?? string.Empty,
+                            CashWalletId = record.CashWalletId ?? string.Empty,
                             Status = "Available",
-                            HasWallet = category.RequiresWallet,
-                            WalletId = record.WalletId,
-                            Notes = record.Notes,
+                            Notes = record.Notes ?? string.Empty,
                             CreatedAt = DateTime.Now
                         };
 
@@ -100,13 +112,12 @@ namespace MobileLinesManager.Services
             return result;
         }
 
-        public async Task<ImportResult> ImportFromQRDataAsync(string qrData, int defaultCategoryId)
+        public async Task<ImportResult> ImportFromQRDataAsync(string qrData, int defaultGroupId)
         {
             var result = new ImportResult();
 
             try
             {
-                // Expected format: PhoneNumber|SerialNumber|CategoryId|WalletId
                 var parts = qrData.Split('|');
 
                 if (parts.Length < 1)
@@ -117,7 +128,6 @@ namespace MobileLinesManager.Services
 
                 var phoneNumber = parts[0];
 
-                // Check if line already exists
                 var exists = await _db.Lines.AnyAsync(l => l.PhoneNumber == phoneNumber);
                 if (exists)
                 {
@@ -125,24 +135,32 @@ namespace MobileLinesManager.Services
                     return result;
                 }
 
-                var category = await _db.Categories
-                    .Include(c => c.Operator)
-                    .FirstOrDefaultAsync(c => c.Id == defaultCategoryId);
+                var group = await _db.Groups
+                    .Include(g => g.Operator)
+                    .Include(g => g.Lines)
+                    .FirstOrDefaultAsync(g => g.Id == defaultGroupId);
 
-                if (category == null)
+                if (group == null)
                 {
-                    result.Errors.Add("الفئة المحددة غير موجودة");
+                    result.Errors.Add("المجموعة المحددة غير موجودة");
+                    return result;
+                }
+
+                if (group.IsFull)
+                {
+                    result.Errors.Add($"المجموعة '{group.Name}' ممتلئة");
                     return result;
                 }
 
                 var line = new Line
                 {
+                    GroupId = defaultGroupId,
                     PhoneNumber = phoneNumber,
                     SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
-                    CategoryId = defaultCategoryId,
-                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
+                    AssociatedName = parts.Length > 2 ? parts[2] : string.Empty,
+                    NationalId = parts.Length > 3 ? parts[3] : string.Empty,
+                    CashWalletId = parts.Length > 4 ? parts[4] : string.Empty,
                     Status = "Available",
-                    HasWallet = category.RequiresWallet,
                     CreatedAt = DateTime.Now
                 };
 
@@ -166,7 +184,6 @@ namespace MobileLinesManager.Services
 
             try
             {
-                // Expected format: PhoneNumber|SerialNumber|CategoryId|WalletId
                 var parts = payload.Split('|');
 
                 if (parts.Length < 1)
@@ -179,8 +196,9 @@ namespace MobileLinesManager.Services
                 {
                     PhoneNumber = parts[0],
                     SerialNumber = parts.Length > 1 ? parts[1] : string.Empty,
-                    CategoryId = parts.Length > 2 && int.TryParse(parts[2], out var catId) ? catId : 0,
-                    WalletId = parts.Length > 3 ? parts[3] : string.Empty,
+                    AssociatedName = parts.Length > 2 ? parts[2] : string.Empty,
+                    NationalId = parts.Length > 3 ? parts[3] : string.Empty,
+                    CashWalletId = parts.Length > 4 ? parts[4] : string.Empty,
                     Status = "Available",
                     CreatedAt = DateTime.Now
                 };
@@ -198,10 +216,12 @@ namespace MobileLinesManager.Services
 
         private class CsvLineRecord
         {
-            public string PhoneNumber { get; set; }
-            public string SerialNumber { get; set; }
-            public string WalletId { get; set; }
-            public string Notes { get; set; }
+            public string PhoneNumber { get; set; } = string.Empty;
+            public string SerialNumber { get; set; } = string.Empty;
+            public string AssociatedName { get; set; } = string.Empty;
+            public string NationalId { get; set; } = string.Empty;
+            public string CashWalletId { get; set; } = string.Empty;
+            public string Notes { get; set; } = string.Empty;
         }
     }
 }
