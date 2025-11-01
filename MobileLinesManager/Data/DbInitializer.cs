@@ -10,8 +10,8 @@ namespace MobileLinesManager.Data
     {
         public static void Initialize(AppDbContext context)
         {
-            // Apply migrations
-            context.Database.Migrate();
+            // Create database if it doesn't exist
+            context.Database.EnsureCreated();
             
             // Enable foreign keys
             context.Database.ExecuteSqlRaw("PRAGMA foreign_keys = ON;");
