@@ -29,6 +29,7 @@
             <!-- Views -->
             <views:DashboardView x:Key="DashboardView"/>
             <views:LinesView x:Key="LinesView"/>
+            <views:GroupsView x:Key="GroupsView"/>
             <views:AssignmentsView x:Key="AssignmentsView"/>
             <views:CategoriesView x:Key="CategoriesView"/>
             <views:ReportsView x:Key="ReportsView" DataContext="{Binding Source={StaticResource ReportsVM}}"/>
@@ -55,16 +56,49 @@
         <!-- Header -->
         <Border Grid.Row="0" Grid.ColumnSpan="2" Background="#0078D4">
             <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
                 <TextBlock Text="إدارة خطوط الموبايل" 
                           FontSize="24" 
                           FontWeight="Bold" 
                           Foreground="White" 
                           VerticalAlignment="Center" 
-                          Margin="20,0"/>
+                          HorizontalAlignment="Center"
+                          Grid.Column="0"/>
 
+                <!-- Operator Logos -->
+                <StackPanel Orientation="Horizontal" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Grid.Column="1"
+                           Margin="20,0">
+                    <Image Source="Resources/Images/vodafone_logo.png" 
+                          Width="40" 
+                          Height="40" 
+                          Margin="5"/>
+                    <Image Source="Resources/Images/etisalat_logo.png" 
+                          Width="40" 
+                          Height="40" 
+                          Margin="5"/>
+                    <Image Source="Resources/Images/we_logo.png" 
+                          Width="40" 
+                          Height="40" 
+                          Margin="5"/>
+                    <Image Source="Resources/Images/orange_logo.png" 
+                          Width="40" 
+                          Height="40" 
+                          Margin="5"/>
+                </StackPanel>
+
+                <!-- Alerts -->
                 <StackPanel Orientation="Horizontal" 
                            HorizontalAlignment="Left" 
-                           VerticalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Grid.Column="2"
                            Margin="20,0">
                     <TextBlock Text="التنبيهات:" 
                               Foreground="White" 
@@ -108,9 +142,9 @@
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
 
-                <Button Content="الفئات" 
+                <Button Content="المجموعات" 
                        Command="{Binding NavigateCommand}" 
-                       CommandParameter="Categories"
+                       CommandParameter="Groups"
                        Style="{StaticResource SecondaryButton}" 
                        Margin="0,5" 
                        HorizontalAlignment="Stretch"/>
@@ -138,6 +172,8 @@
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Dashboard}"/>
             <ContentPresenter Content="{StaticResource LinesView}"
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Lines}"/>
+            <ContentPresenter Content="{StaticResource GroupsView}"
+                              Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Groups}"/>
             <ContentPresenter Content="{StaticResource AssignmentsView}"
                               Visibility="{Binding CurrentView, Converter={StaticResource ViewToVisibilityConverter}, ConverterParameter=Assignments}"/>
             <ContentPresenter Content="{StaticResource CategoriesView}"
