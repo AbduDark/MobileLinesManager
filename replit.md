@@ -20,6 +20,8 @@ This is a **Windows-only WPF desktop application** that requires Windows to run 
 - **QuestPDF** (2024.3.0) - PDF report generation
 - **ClosedXML** (0.102.1) - Excel report generation
 - **BCrypt.Net-Next** (4.0.3) - Password hashing and security
+- **AForge.Video** (2.2.5) - Webcam video capture for QR scanning
+- **AForge.Video.DirectShow** (2.2.5) - DirectShow support for AForge
 
 ### Project Structure
 ```
@@ -70,9 +72,10 @@ MobileLinesManager/
 
 ### On Replit (Linux Environment)
 The project has been set up with:
-- ✅ .NET 8.0 SDK installed
-- ✅ NuGet packages restored
-- ✅ Build validation completed successfully (0 errors, 192 warnings)
+- ✅ .NET 8.0 SDK installed (version 8.0.412)
+- ✅ NuGet packages restored (including AForge dependencies)
+- ✅ Build validation completed successfully (0 errors)
+- ✅ All compilation errors fixed
 - ✅ Import completed successfully
 - ⚠️ GUI execution not possible (requires Windows)
 
@@ -95,6 +98,19 @@ dotnet build -c Release
 - **Group** model with relationships to Operator and Lines
 
 ## Recent Changes
+- **2025-11-01**: Project successfully imported and fixed on Replit
+  - Installed .NET 8.0 SDK (version 8.0.412)
+  - Fixed all compilation errors:
+    * Updated OperatorViewModel to use Groups instead of Categories
+    * Updated ReportsViewModel to use Groups instead of Categories
+    * Fixed QRService async method to properly return Line type
+    * Fixed QRScannerWindow to use event-driven frame capture (removed non-existent GetCurrentFrame)
+    * Added AForge.Video and AForge.Video.DirectShow packages for webcam support
+    * Updated DashboardViewModel to properly map operator Groups
+  - Build validation completed successfully (0 errors, only nullable reference warnings)
+  - Created validate-build workflow for continuous validation
+  - Import completed successfully
+
 - **2025-11-01**: Complete refactoring from Category-based to Group-based system
   - Updated all services: ImportService, AlertService, QRService, DashboardViewModel
   - Rewrote ReportService (simplified from 574 lines) with Group-based PDF/Excel exports
@@ -104,13 +120,6 @@ dotnet build -c Release
   - Created GroupsViewModel.cs for Groups management
   - Updated MainWindow.xaml with operator logos (Vodafone, Etisalat, We, Orange)
   - Updated LinesViewModel, AssignViewModel to use Groups
-  - Project builds successfully with 0 errors (194 nullable warnings)
-
-- **2025-11-01**: Project imported to Replit
-  - Installed .NET 8.0 SDK
-  - Restored all NuGet packages
-  - Validated build successfully
-  - Added comprehensive .gitignore for .NET projects
 
 ## User Preferences
 - Prefer Group-based architecture over Category-based

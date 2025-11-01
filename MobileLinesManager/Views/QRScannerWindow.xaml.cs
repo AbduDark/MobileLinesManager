@@ -26,6 +26,8 @@ namespace MobileLinesManager.Views
         private Line? _scannedLine;
         private bool _isScanning = false;
         private readonly SemaphoreSlim _scanSemaphore = new SemaphoreSlim(1, 1);
+        private readonly object _frameLock = new object();
+        private Bitmap? _latestFrame;
 
         public Line? ScannedLine => _scannedLine;
 
@@ -120,6 +122,12 @@ namespace MobileLinesManager.Views
             {
                 var bitmap = (Bitmap)eventArgs.Frame.Clone();
                 
+                lock (_frameLock)
+                {
+                    _latestFrame?.Dispose();
+                    _latestFrame = (Bitmap)bitmap.Clone();
+                }
+                
                 Dispatcher.Invoke(() =>
                 {
                     CameraImage.Source = BitmapToImageSource(bitmap);
@@ -145,7 +153,13 @@ namespace MobileLinesManager.Views
                 {
                     try
                     {
-                        var bitmap = _videoSource.GetCurrentFrame();
+                        Bitmap? bitmap = null;
+                        lock (_frameLock)
+                        {
+                            if (_latestFrame != null)
+                                bitmap = (Bitmap)_latestFrame.Clone();
+                        }
+                        
                         if (bitmap == null) return;
 
                         var reader = new BarcodeReader
@@ -160,6 +174,7 @@ namespace MobileLinesManager.Views
                         };
 
                         var result = reader.Decode(bitmap);
+                        bitmap.Dispose();
                         
                         if (result != null)
                         {

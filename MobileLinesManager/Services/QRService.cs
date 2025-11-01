@@ -18,11 +18,15 @@ namespace MobileLinesManager.Services
 
         public async Task<Line> ScanFromWebcamAsync()
         {
-            return await Task.Run<Line>(() =>
+            return await Task.Run(() =>
             {
                 // This will be called from QRScannerWindow
                 // The actual implementation is in the UI layer
+                Line emptyLine = new Line();
                 throw new NotImplementedException("استخدم QRScannerWindow للمسح من الكاميرا");
+#pragma warning disable CS0162
+                return emptyLine;
+#pragma warning restore CS0162
             });
         }
 

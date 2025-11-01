@@ -76,7 +76,7 @@ namespace MobileLinesManager.ViewModels
                     Id = op.Id,
                     Name = op.Name,
                     ColorHex = op.ColorHex,
-                    Categories = new System.Collections.Generic.List<Category>()
+                    Groups = op.Groups.ToList()
                 };
                 
                 Operators.Add(opViewModel);

@@ -1,0 +1,31 @@
+Severity	Code	Description	Project	File	Line	Suppression State
+Error (active)	CS0246	The type or namespace name 'Category' could not be found (are you missing a using directive or an assembly reference?)	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\ViewModels\OperatorViewModel.cs	12	
+Error (active)	CS0121	The call is ambiguous between the following methods or properties: 'Task.Run<TResult>(Func<Task<TResult>?>)' and 'Task.Run<TResult>(Func<TResult>)'	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\Services\QRService.cs	21	
+Error (active)	CS0246	The type or namespace name 'Category' could not be found (are you missing a using directive or an assembly reference?)	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\ViewModels\ReportsViewModel.cs	23	
+Error (active)	CS0246	The type or namespace name 'Category' could not be found (are you missing a using directive or an assembly reference?)	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\ViewModels\ReportsViewModel.cs	63	
+Error	XDG-0001	The resource "MainVM" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	44	
+Error	XDG-0001	The resource "DashboardView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	170	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	171	
+Error	XDG-0001	The resource "LinesView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	172	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	173	
+Error	XDG-0001	The resource "GroupsView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	174	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	175	
+Error	XDG-0001	The resource "AssignmentsView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	176	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	177	
+Error	XDG-0001	The resource "ReportsView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	178	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	179	
+Error	XDG-0001	The resource "AuditTrailView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	180	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	181	
+Error	XDG-0001	The resource "SettingsView" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	182	
+Error	XDG-0001	The resource "ViewToVisibilityConverter" has an incompatible type.	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	183	
+Error	XDG0008	The name "MainViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	26	
+Error	XDG0008	The name "ReportsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	27	
+Error	XDG0008	The name "DashboardView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	30	
+Error	XDG0008	The name "LinesView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	31	
+Error	XDG0008	The name "GroupsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	32	
+Error	XDG0008	The name "AssignmentsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	33	
+Error	XDG0008	The name "ReportsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	34	
+Error	XDG0008	The name "AuditTrailViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	36	
+Error	XDG0008	The name "AuditTrailView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	37	
+Error	XDG0008	The name "SettingsViewModel" does not exist in the namespace "clr-namespace:MobileLinesManager.ViewModels".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	39	
+Error	XDG0008	The name "SettingsView" does not exist in the namespace "clr-namespace:MobileLinesManager.Views".	MobileLinesManager	C:\Users\abdue\source\repos\MobileLinesManager\MobileLinesManager\MainWindow.xaml	40	

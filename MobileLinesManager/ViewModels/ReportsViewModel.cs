@@ -20,9 +20,9 @@ namespace MobileLinesManager.ViewModels
         private readonly IReportService _reportService;
         
         private ObservableCollection<Operator> _operators;
-        private ObservableCollection<Category> _categories;
+        private ObservableCollection<Group> _groups;
         private int? _selectedOperatorId;
-        private int? _selectedCategoryId;
+        private int? _selectedGroupId;
         private DateTime _startDate = DateTime.Now.AddMonths(-1);
         private DateTime _endDate = DateTime.Now;
         private string _reportResult;
@@ -40,7 +40,7 @@ namespace MobileLinesManager.ViewModels
             _reportService = reportService;
             
             Operators = new ObservableCollection<Operator>();
-            Categories = new ObservableCollection<Category>();
+            Groups = new ObservableCollection<Group>();
             Alerts = new ObservableCollection<AlertItem>();
             
             LoadOperatorsCommand = new AsyncRelayCommand(async _ => await LoadOperatorsAsync());
@@ -60,10 +60,10 @@ namespace MobileLinesManager.ViewModels
             set => SetProperty(ref _operators, value);
         }
 
-        public ObservableCollection<Category> Categories
+        public ObservableCollection<Group> Groups
         {
-            get => _categories;
-            set => SetProperty(ref _categories, value);
+            get => _groups;
+            set => SetProperty(ref _groups, value);
         }
 
         public ObservableCollection<AlertItem> Alerts
@@ -79,15 +79,15 @@ namespace MobileLinesManager.ViewModels
             {
                 if (SetProperty(ref _selectedOperatorId, value))
                 {
-                    LoadCategoriesByOperatorAsync(value).ConfigureAwait(false);
+                    LoadGroupsByOperatorAsync(value).ConfigureAwait(false);
                 }
             }
         }
 
-        public int? SelectedCategoryId
+        public int? SelectedGroupId
         {
-            get => _selectedCategoryId;
-            set => SetProperty(ref _selectedCategoryId, value);
+            get => _selectedGroupId;
+            set => SetProperty(ref _selectedGroupId, value);
         }
 
         public DateTime StartDate
@@ -126,19 +126,19 @@ namespace MobileLinesManager.ViewModels
             }
         }
 
-        private async Task LoadCategoriesByOperatorAsync(int? operatorId)
+        private async Task LoadGroupsByOperatorAsync(int? operatorId)
         {
-            Categories.Clear();
+            Groups.Clear();
             
             if (operatorId.HasValue)
             {
-                var categories = await _db.Categories
-                    .Where(c => c.OperatorId == operatorId.Value)
+                var groups = await _db.Groups
+                    .Where(g => g.OperatorId == operatorId.Value)
                     .ToListAsync();
                 
-                foreach (var cat in categories)
+                foreach (var grp in groups)
                 {
-                    Categories.Add(cat);
+                    Groups.Add(grp);
                 }
             }
         }
