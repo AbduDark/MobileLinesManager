@@ -19,7 +19,7 @@ namespace MobileLinesManager.Services
         Task ExportLinesToExcelAsync(IEnumerable<Line> lines, string filePath);
         
         // Text Reports (for in-app display)
-        Task<string> GenerateCountByOperatorAndCategoryReportAsync();
+        Task<string> GenerateCountByOperatorAndGroupReportAsync();
         Task<string> GenerateExpiringLinesReportAsync(int daysAhead);
         Task<string> GenerateWorkerDelayReportAsync();
         Task<string> GenerateAssignmentHistoryReportAsync(DateTime startDate, DateTime endDate);

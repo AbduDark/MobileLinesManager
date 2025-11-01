@@ -537,7 +537,7 @@ namespace MobileLinesManager.Services
             workbook.SaveAs(filePath);
         }
 
-        public async Task<string> GenerateCountByOperatorAndCategoryReportAsync()
+        public async Task<string> GenerateCountByOperatorAndGroupReportAsync()
         {
             var operators = await _db.Operators
                 .Include(o => o.Groups)

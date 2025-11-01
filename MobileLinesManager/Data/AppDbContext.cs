@@ -10,7 +10,6 @@ namespace MobileLinesManager.Data
     public class AppDbContext : DbContext
     {
         public DbSet<Operator> Operators { get; set; }
-        public DbSet<Category> Categories { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Line> Lines { get; set; }

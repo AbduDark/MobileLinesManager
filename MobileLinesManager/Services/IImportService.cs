@@ -7,8 +7,8 @@ namespace MobileLinesManager.Services
 {
     public interface IImportService
     {
-        Task<ImportResult> ImportFromCSVAsync(string filePath, int defaultCategoryId);
-        Task<ImportResult> ImportFromQRDataAsync(string qrData, int defaultCategoryId);
+        Task<ImportResult> ImportFromCSVAsync(string filePath, int defaultGroupId);
+        Task<ImportResult> ImportFromQRDataAsync(string qrData, int defaultGroupId);
         ImportResult ParseQrPayload(string payload);
     }
 

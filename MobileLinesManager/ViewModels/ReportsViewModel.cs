@@ -145,7 +145,7 @@ namespace MobileLinesManager.ViewModels
 
         private async Task GenerateCountReportAsync()
         {
-            var report = await _reportService.GenerateCountByOperatorAndCategoryReportAsync();
+            var report = await _reportService.GenerateCountByOperatorAndGroupReportAsync();
             ReportResult = report;
             
             MessageBox.Show("تم إنشاء التقرير", "نجاح", MessageBoxButton.OK, MessageBoxImage.Information);

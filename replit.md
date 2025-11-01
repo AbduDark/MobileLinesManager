@@ -98,6 +98,15 @@ dotnet build -c Release
 - **Group** model with relationships to Operator and Lines
 
 ## Recent Changes
+- **2025-11-01**: Complete removal of Category system and code cleanup
+  - ✅ Completely removed Category model and all related files (Category.cs, CategoriesViewModel.cs, CategoriesView.xaml)
+  - ✅ Removed DbSet<Category> from AppDbContext
+  - ✅ Updated all services to use Groups only (IImportService, IReportService, ReportService)
+  - ✅ Renamed GenerateCountByOperatorAndCategoryReportAsync → GenerateCountByOperatorAndGroupReportAsync
+  - ✅ Updated all ViewModels to use Groups instead of Categories
+  - ✅ Updated all XAML views (ReportsView.xaml) to display "المجموعة" instead of "الفئة"
+  - ✅ Build completed successfully (0 errors)
+
 - **2025-11-01**: Project successfully imported and fixed on Replit
   - Installed .NET 8.0 SDK (version 8.0.412)
   - Fixed all compilation errors:
